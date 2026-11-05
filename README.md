@@ -15,8 +15,9 @@
 
 ## Core Features
 
-- **High-Performance Pure Rust Engine (`src/engine.rs`)**
-  - Ultra-fast full-spectrum DSP analysis with zero heavy runtime dependencies.
+- **High-Performance Rust Metrology Architecture (`src/engine.rs`)**
+  - Ultra-fast zero-copy DSP analysis pipeline with zero Python runtime overhead.
+  - Leverages system-level **FFmpeg** for universal audio decoding (FLAC, WAV, APE, ALAC, MP3, and native DSD `.dsf`/`.dff`).
   - Strictly adheres to industrial standards (ITU-R BS.1770-4, EBU R128).
 - **Comprehensive Acoustic Metrology**
   - **Dynamics & Loudness**: EBU R128 Integrated Loudness (`LUFS`), Loudness Range (`LRA`), 4x Oversampled True Peak (`dBTP`), Crest Factor (`dB`), and classic `TT Dynamic Range (DR)`.
@@ -68,6 +69,22 @@ record-inspect/
 ├── README.md
 └── README_zh.md
 ```
+
+---
+
+## Prerequisites
+
+Both `record-inspect-gui` and `record-inspect-cli` require **FFmpeg** to be installed and available in your system's `PATH`:
+
+- **Windows Installation (Scoop / Winget)**:
+  ```powershell
+  # Using Scoop
+  scoop install ffmpeg
+
+  # Or using Winget
+  winget install Gyan.FFmpeg
+  ```
+- **Verification**: Run `ffmpeg -version` in your terminal to ensure it is recognized.
 
 ---
 

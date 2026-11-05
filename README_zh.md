@@ -15,8 +15,9 @@
 
 ## 核心特性
 
-- **纯 Rust 高性能声学计算内核 (`src/engine.rs`)**
-  - 单轨秒级全频段 DSP 分析，无重量级外部依赖。
+- **Rust 高性能声学分析与交互框架 (`src/engine.rs`)**
+  - 基于 Rust 调度与内存零拷贝计算，无重量级 Python 解释器环境依赖。
+  - 依赖系统级 **FFmpeg** 进行底层格式解调（支持 FLAC、WAV、APE、ALAC、MP3 及 DSD `.dsf`/`.dff`）。
   - 严格遵循工业级声学标准与 ITU-R / EBU 算法规范。
 - **全维度物理指标测量**
   - **动态与响度**：EBU R128 综合响度 (`LUFS`)、宏观响度范围 (`LRA`)、4倍过采样真峰值 (`True Peak dBTP`)、瞬态峰值因子 (`Crest Factor`)、经典 `TT Dynamic Range (DR)`。
@@ -68,6 +69,22 @@ record-inspect/
 ├── README.md
 └── README_zh.md
 ```
+
+---
+
+## 运行前置要求
+
+运行 `record-inspect-gui` 或 `record-inspect-cli` 需确保系统已安装 **FFmpeg** 并且已加入系统环境变量 `PATH`：
+
+- **Windows 安装推荐 (Scoop / Winget)**：
+  ```powershell
+  # 使用 scoop
+  scoop install ffmpeg
+
+  # 或使用 winget
+  winget install Gyan.FFmpeg
+  ```
+- **验证安装**：在终端运行 `ffmpeg -version` 能正常输出版本信息即可。
 
 ---
 
