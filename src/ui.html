@@ -1,0 +1,1290 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="theme-brutalist lang-zh">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RECORD INSPECT // ACOUSTIC FORENSIC CONSOLE</title>
+  <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Archivo+Black&display=swap');
+
+    /* ================= 模式 1: 战术野兽终端 (TACTICAL BRUTALIST) ================= */
+    html.theme-brutalist {
+      --bg-body: #080808;
+      --bg-card: #101010;
+      --bg-inner: #151515;
+      --border-main: #27272a;
+      --border-accent: #e61919;
+      --color-accent: #e61919;
+      --color-text-main: #e5e5e5;
+      --color-text-muted: #71717a;
+      --font-family: 'JetBrains Mono', monospace;
+    }
+
+    html.theme-brutalist * {
+      border-radius: 0px !important;
+    }
+
+    html.theme-brutalist .view-highend-only {
+      display: none !important;
+    }
+
+    html.theme-brutalist .view-brutalist-only {
+      display: block !important;
+    }
+
+    html.theme-brutalist .crt-scanline {
+      background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.28) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
+      background-size: 100% 3px, 6px 100%;
+      pointer-events: none;
+    }
+
+    /* ================= 模式 2: 瑞士精密阳极氧化铝 (SWISS ANODIZED ALUMINUM) ================= */
+    html.theme-highend {
+      --bg-body: #ebeef3;
+      --bg-card: #ffffff;
+      --bg-inner: #f4f6f9;
+      --border-main: #d1d5db;
+      --border-accent: #d97706;
+      --color-accent: #d97706; /* Nagra 经典复古琥珀金 */
+      --color-text-main: #0f172a; /* 极深灰墨 */
+      --color-text-muted: #64748b;
+      --font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+    }
+
+    html.theme-highend .view-brutalist-only {
+      display: none !important;
+    }
+
+    html.theme-highend .view-highend-only {
+      display: block !important;
+    }
+
+    html.theme-highend .crt-scanline {
+      display: none !important;
+    }
+
+    /* 阳极氧化厚铝微浮雕与柔和自然投影 */
+    html.theme-highend .swiss-aluminum-panel {
+      border-radius: 20px;
+      background: #ffffff;
+      border: 1px solid rgba(203, 213, 225, 0.8);
+      box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.06), 0 4px 6px -2px rgba(15, 23, 42, 0.03), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+    }
+
+    html.theme-highend .swiss-inner-slot {
+      border-radius: 14px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      box-shadow: inset 0 1px 3px rgba(15, 23, 42, 0.04);
+    }
+
+    html.theme-highend .swiss-nagra-meter {
+      background: linear-gradient(180deg, #fffbeb 0%, #fef3c7 100%);
+      border: 1px solid #fde68a;
+      box-shadow: inset 0 2px 4px rgba(217, 119, 6, 0.08);
+    }
+
+    body {
+      background-color: var(--bg-body);
+      color: var(--color-text-main);
+      font-family: var(--font-family);
+      min-height: 100vh;
+      user-select: none;
+      transition: background-color 0.35s ease, color 0.35s ease;
+    }
+
+    .font-heavy {
+      font-family: 'Archivo Black', sans-serif;
+      letter-spacing: -0.04em;
+    }
+
+    .font-mono-data {
+      font-family: 'JetBrains Mono', monospace;
+      font-feature-settings: "tnum" 1;
+    }
+
+    ::-webkit-scrollbar {
+      width: 5px;
+      height: 5px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(100, 116, 139, 0.3);
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body class="p-3 md:p-6 relative selection:bg-amber-500/20 selection:text-amber-900">
+  <!-- CRT 扫描线仅在 Brutalist 下显现 -->
+  <div class="fixed inset-0 crt-scanline z-50"></div>
+
+  <!-- 全局 Toast -->
+  <div id="b-toast" class="fixed top-5 right-5 z-50 px-4 py-2 text-xs font-bold shadow-2xl opacity-0 transition-opacity duration-300 pointer-events-none rounded-lg">
+    [ COPIED TO CLIPBOARD ]
+  </div>
+
+  <div class="max-w-7xl mx-auto space-y-4 relative z-10">
+
+    <!-- ================= 顶部综合控制栏 ================= -->
+    <header class="flex flex-col md:flex-row md:items-center justify-between gap-3 pb-3 border-b border-black/10 dark:border-white/10">
+      <div class="flex items-center gap-3">
+        <!-- Brutalist 徽标 -->
+        <div class="view-brutalist-only bg-[#e61919] text-black px-3 py-1 font-heavy text-xs tracking-wider">
+          REC-INSPECT // ITU-R BS.1770
+        </div>
+        <!-- High-End 瑞士阳极氧化铭牌 -->
+        <div class="view-highend-only px-3.5 py-1 rounded-full bg-slate-900 text-amber-400 border border-slate-700 text-[11px] font-bold tracking-[0.2em] uppercase shadow-sm flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
+          PRECISION AUDIO ANALYZER // REFERENCE
+        </div>
+
+        <div>
+          <h1 class="text-lg md:text-xl font-bold tracking-tight flex items-center gap-2">
+            <span>RECORD INSPECT</span>
+            <span class="text-xs font-semibold text-slate-500 border-l border-slate-300 pl-2 view-highend-only">MASTERING QUALITY INSPECTION</span>
+          </h1>
+          <p id="txt-sys-desc" class="text-[10px] text-slate-500 font-mono-data">
+            OBJECTIVE ACOUSTIC METRICS · EBU R128 / ITU-R BS.1770-4
+          </p>
+        </div>
+      </div>
+
+      <!-- 右侧控制岛 (打开文件 / 风格切换 / 语言切换) -->
+      <div class="flex flex-wrap items-center gap-2.5 text-xs">
+        <!-- 打开文件按钮 -->
+        <button onclick="triggerFilePicker()" id="btn-file-load" class="px-3.5 py-1.5 font-bold flex items-center gap-2 transition duration-200 shadow-md">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+          <span id="btn-open-file-txt">打开音频文件...</span>
+        </button>
+
+        <!-- 风格切换 (Brutalist vs Swiss Aluminum High-End) -->
+        <div class="flex items-center p-0.5 border rounded-full overflow-hidden shadow-sm" id="box-theme-switch">
+          <button onclick="setTheme('brutalist')" id="theme-btn-brutalist" class="px-3 py-1 text-[11px] font-bold transition">
+            BRUTALIST
+          </button>
+          <button onclick="setTheme('highend')" id="theme-btn-highend" class="px-3 py-1 text-[11px] font-bold transition">
+            SWISS ALUM
+          </button>
+        </div>
+
+        <!-- 语言切换 -->
+        <div class="flex items-center p-0.5 border rounded-full overflow-hidden shadow-sm" id="box-lang-switch">
+          <button onclick="setLang('zh')" id="lang-btn-zh" class="px-2.5 py-1 text-[11px] font-bold transition">
+            中文
+          </button>
+          <button onclick="setLang('en')" id="lang-btn-en" class="px-2.5 py-1 text-[11px] font-bold transition">
+            EN
+          </button>
+        </div>
+      </div>
+    </header>
+
+
+    <!-- ======================= [布局 A: BRUTALIST 战术工业机架 (黑夜直角)] ======================= -->
+    <div class="view-brutalist-only space-y-4">
+      
+      <!-- 顶部活动音轨看板 + 右上角历史抽屉 -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-3">
+        <section class="lg:col-span-8 p-3 border border-zinc-800 bg-[#0c0c0c] space-y-2">
+          <div class="flex items-center justify-between border-b border-zinc-800 pb-2 text-[11px] text-zinc-400">
+            <span class="font-bold text-zinc-300 flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+              ACTIVE TRACK // 当前分析音轨
+            </span>
+            <span class="font-mono-data text-zinc-500 text-[10px]">SUPPORT DRAG & DROP</span>
+          </div>
+
+          <div class="grid grid-cols-2 md:grid-cols-5 gap-px bg-zinc-800 text-xs font-mono-data">
+            <div class="bg-[#121212] p-2">
+              <span class="text-[10px] text-zinc-500 block">曲目标题 / ID</span>
+              <span id="b-title" class="text-white font-bold truncate block">FIREBIRD-INTRO.FLAC</span>
+            </div>
+            <div class="bg-[#121212] p-2">
+              <span class="text-[10px] text-zinc-500 block">封装格式 / 声道</span>
+              <span id="b-codec" class="text-emerald-400 font-bold block truncate">FLAC 2-CHANNEL</span>
+            </div>
+            <div class="bg-[#121212] p-2">
+              <span class="text-[10px] text-zinc-500 block">物理时钟 / 标称位深</span>
+              <span id="b-spec" class="text-white font-bold block truncate">96.0 KHZ / 24-BIT</span>
+            </div>
+            <div class="bg-[#121212] p-2">
+              <span class="text-[10px] text-zinc-500 block">总时长 / 文件大小</span>
+              <span id="b-dur" class="text-white font-bold block truncate">02:47 // 41.18 MB</span>
+            </div>
+            <div class="bg-[#121212] p-2">
+              <span class="text-[10px] text-zinc-500 block">分析引擎状态</span>
+              <span id="b-status" class="text-[#e61919] font-bold block truncate">[READY // 待命]</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- 右上角历史窗口 -->
+        <section class="lg:col-span-4 p-3 border border-zinc-800 bg-[#0e0e0e] flex flex-col justify-between">
+          <div class="flex items-center justify-between border-b border-zinc-800 pb-1.5">
+            <span class="text-xs font-bold text-zinc-300">RECENT INSPECTIONS // 最近历史</span>
+            <span id="b-recent-count" class="text-[10px] font-mono-data text-zinc-500">3 ITEMS</span>
+          </div>
+          <div id="b-recent-list" class="space-y-1 my-2 max-h-[82px] overflow-y-auto pr-1"></div>
+          <div class="text-[9px] text-zinc-500 flex justify-between pt-1 border-t border-zinc-800/80 font-mono-data">
+            <span>PRESETS:</span>
+            <div class="space-x-1">
+              <button onclick="loadTarget('firebird')" class="text-zinc-400 hover:text-white underline">FLAC</button>
+              <span>/</span>
+              <button onclick="loadTarget('organ')" class="text-zinc-400 hover:text-white underline">WAV</button>
+              <span>/</span>
+              <button onclick="loadTarget('dsd')" class="text-zinc-400 hover:text-white underline">DSD</button>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <!-- 主机架仪表 -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-3">
+        <div class="lg:col-span-7 space-y-3">
+          <!-- 01: 宏观响度与微观动态 -->
+          <div class="border border-zinc-800 bg-[#0e0e0e] p-3 space-y-2.5">
+            <div class="flex items-center justify-between border-b border-zinc-800 pb-1.5">
+              <span class="text-xs font-bold text-zinc-300">01 // 宏观动态与峰值因子 (DYNAMICS)</span>
+              <span class="text-[10px] font-mono-data text-zinc-500">EBU R128</span>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs font-mono-data">
+              <div class="bg-black/80 p-2 border border-zinc-800 space-y-1">
+                <div class="flex justify-between">
+                  <span class="text-zinc-400">综合响度</span>
+                  <span id="b-lufs" class="text-white font-bold">-41.20 LUFS</span>
+                </div>
+                <div class="w-full bg-zinc-900 h-2">
+                  <div id="b-lufs-bar" class="bg-emerald-400 h-full" style="width: 28%"></div>
+                </div>
+              </div>
+              <div class="bg-black/80 p-2 border border-zinc-800 space-y-1">
+                <div class="flex justify-between">
+                  <span class="text-zinc-400">重构真峰值</span>
+                  <span id="b-tp" class="text-emerald-400 font-bold">-23.10 DBFS</span>
+                </div>
+                <div class="w-full bg-zinc-900 h-2">
+                  <div id="b-tp-bar" class="bg-emerald-400 h-full" style="width: 48%"></div>
+                </div>
+              </div>
+            </div>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-2 font-mono-data text-xs">
+              <div class="bg-zinc-950 p-2 border border-zinc-800">
+                <span class="text-[10px] text-zinc-500 block">TT DR 动态</span>
+                <span id="b-dr" class="text-base font-bold text-white block mt-0.5">DR9</span>
+              </div>
+              <div class="bg-zinc-950 p-2 border border-zinc-800">
+                <span class="text-[10px] text-zinc-500 block">峰值因子</span>
+                <span id="b-crest" class="text-base font-bold text-white block mt-0.5">+17.65 DB</span>
+              </div>
+              <div class="bg-zinc-950 p-2 border border-zinc-800">
+                <span class="text-[10px] text-zinc-500 block">响度范围 (LRA)</span>
+                <span id="b-lra" class="text-base font-bold text-white block mt-0.5">11.10 LU</span>
+              </div>
+              <div class="bg-zinc-950 p-2 border border-zinc-800">
+                <span class="text-[10px] text-zinc-500 block">宏观极差 (SPAN)</span>
+                <span id="b-span" class="text-base font-bold text-white block mt-0.5">26.88 DB</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 02: 频响延伸 -->
+          <div class="border border-zinc-800 bg-[#0e0e0e] p-3 space-y-2">
+            <div class="flex items-center justify-between border-b border-zinc-800 pb-1.5">
+              <span class="text-xs font-bold text-zinc-300">02 // 频响延展与高规格真伪 (FREQUENCY)</span>
+              <span class="text-[10px] font-mono-data text-zinc-500">NYQUIST SCAN</span>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-2 text-xs font-mono-data">
+              <div class="bg-zinc-950 p-2 border border-zinc-800">
+                <span class="text-[10px] text-zinc-500 block">实测有效截止点</span>
+                <span id="b-cutoff" class="text-base font-bold text-emerald-400 block mt-1">48.0 KHZ</span>
+                <span id="b-cutoff-tag" class="text-[9px] text-zinc-400 block mt-1">NATIVE HI-RES</span>
+              </div>
+              <div class="bg-zinc-950 p-2 border border-zinc-800 md:col-span-2 space-y-1">
+                <span class="text-[10px] text-zinc-500 block">超声频段能量阶跃</span>
+                <div class="flex justify-between text-[11px]">
+                  <span class="text-zinc-400">10k-20k:</span>
+                  <span id="b-band10k" class="text-white font-bold">-79.25 DBFS</span>
+                </div>
+                <div class="flex justify-between text-[11px]">
+                  <span class="text-zinc-400">20k-24k:</span>
+                  <span id="b-band20k" class="text-white font-bold">-93.71 DBFS</span>
+                </div>
+                <div class="flex justify-between text-[11px]">
+                  <span class="text-zinc-400">24k-48k:</span>
+                  <span id="b-band24k" class="text-white font-bold">-92.11 DBFS</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 03: 直流偏置与有效位深 -->
+          <div class="border border-zinc-800 bg-[#0e0e0e] p-3 space-y-2">
+            <div class="flex items-center justify-between border-b border-zinc-800 pb-1.5">
+              <span class="text-xs font-bold text-zinc-300">03 // 信号规范与本底纯净度 (SIGNAL HYGIENE)</span>
+              <span class="text-[10px] font-mono-data text-zinc-500">ELECTRICAL PURITY</span>
+            </div>
+            <div class="grid grid-cols-2 gap-2 text-xs font-mono-data">
+              <div class="bg-zinc-950 p-2 border border-zinc-800">
+                <span class="text-[10px] text-zinc-500 block">电气直流偏置</span>
+                <span id="b-dc" class="text-xs font-bold text-white block mt-1 truncate">L: 0.000000 / R: 0.000000</span>
+              </div>
+              <div class="bg-zinc-950 p-2 border border-zinc-800">
+                <span class="text-[10px] text-zinc-500 block">有效利用位深</span>
+                <span id="b-bits" class="text-xs font-bold text-emerald-400 block mt-1">20-BIT (PHYSICAL 24-BIT)</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 右侧声场示波与导出 -->
+        <div class="lg:col-span-5 space-y-3">
+          <div class="border border-zinc-800 bg-[#0e0e0e] p-3 space-y-2">
+            <div class="flex items-center justify-between border-b border-zinc-800 pb-1.5">
+              <span class="text-xs font-bold text-zinc-300">04 // 立体声相位与相关性 (STEREO CORRELATION)</span>
+              <span id="b-corr" class="text-xs text-white bg-zinc-900 border border-zinc-700 px-2 py-0.5 font-bold font-mono-data">CORR: +0.7980</span>
+            </div>
+            <div class="bg-black border border-zinc-800 p-2 relative flex flex-col items-center justify-center">
+              <canvas id="brutalistScope" width="220" height="220" class="w-[200px] h-[200px]"></canvas>
+              <div class="w-full flex justify-between pt-2 text-[10px] text-zinc-400 border-t border-zinc-900 mt-1 font-mono-data">
+                <span>S/M 比: <b id="b-sm" class="text-white">-9.43 DB</b></span>
+                <span>平衡重心: <b id="b-bal" class="text-white">+0.72 DB (L)</b></span>
+              </div>
+            </div>
+            <div class="space-y-1 text-[11px] font-mono-data">
+              <div class="flex justify-between bg-zinc-950 p-1 border border-zinc-800">
+                <span class="text-zinc-500">LOW (<250HZ):</span>
+                <span id="b-low" class="text-zinc-300">+0.80 DB | +0.8819</span>
+              </div>
+              <div class="flex justify-between bg-zinc-950 p-1 border border-zinc-800">
+                <span class="text-zinc-500">MID (500-2K):</span>
+                <span id="b-mid" class="text-zinc-300">+0.16 DB | +0.2998</span>
+              </div>
+              <div class="flex justify-between bg-zinc-950 p-1 border border-zinc-800">
+                <span class="text-zinc-500">HIGH (>2.5K):</span>
+                <span id="b-high" class="text-zinc-300">+0.02 DB | +0.2634</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="border border-zinc-800 bg-[#0e0e0e] p-3 space-y-2">
+            <span class="text-xs font-bold text-zinc-300 border-b border-zinc-800 pb-1 block">[ DATA EXPORT & AUDIT PROMPT ]</span>
+            <button onclick="copyAuditPrompt()" class="w-full py-2 bg-[#e61919] hover:bg-red-600 text-black font-heavy text-xs tracking-wider transition">
+              [ 复制母带质检提示词 (LLM) ]
+            </button>
+            <button onclick="copyRawConsoleMetrics()" class="w-full py-2 bg-zinc-900 hover:bg-zinc-800 border border-zinc-700 text-zinc-200 text-xs font-bold transition">
+              [ 导出客观测量原始数据 ]
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ======================= [布局 B: SWISS ANODIZED ALUMINUM 瑞士阳极氧化铝 (浅白铝金)] ======================= -->
+    <div class="view-highend-only space-y-4">
+
+      <!-- 顶区：主音轨拉丝铭牌 (8 列) + 右上角瑞士档案抽屉 (4 列) -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
+        
+        <!-- 主活动音轨卡片 (瑞士精密铝合金外框) -->
+        <section class="lg:col-span-8 swiss-aluminum-panel p-5 space-y-3.5">
+          <div class="flex items-center justify-between border-b border-slate-200 pb-2.5">
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
+              ACTIVE TRACK // 当前分析音轨
+            </span>
+            <span class="text-xs font-mono-data text-slate-400">OBJECTIVE ACOUSTIC METRICS</span>
+          </div>
+
+          <div class="flex flex-col md:flex-row md:items-center justify-between gap-3">
+            <div class="space-y-1">
+              <div id="h-title" class="text-xl font-extrabold text-slate-900 tracking-tight truncate max-w-xl">
+                04 - The Firebird - Introduction.flac
+              </div>
+              <div id="h-subtitle" class="text-xs font-bold text-amber-700 font-mono-data">
+                FLAC 2-CHANNEL · 96.0 KHZ / 24-BIT STEREO
+              </div>
+            </div>
+            <div class="text-right shrink-0">
+              <span class="text-[10px] text-slate-400 uppercase tracking-widest block font-bold">ENGINE STATUS</span>
+              <span id="h-status" class="text-xs font-bold font-mono-data px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300 inline-block mt-0.5">
+                ANALYZED // READY
+              </span>
+            </div>
+          </div>
+
+          <!-- 4 组阳极氧化槽位 -->
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-3 pt-2 font-mono-data text-xs">
+            <div class="swiss-inner-slot p-2.5">
+              <span class="text-[10px] text-slate-400 font-bold block">DURATION & SIZE</span>
+              <span id="h-dur" class="text-slate-900 font-extrabold block mt-0.5">02:47 // 41.18 MB</span>
+            </div>
+            <div class="swiss-inner-slot p-2.5">
+              <span class="text-[10px] text-slate-400 font-bold block">INTEGRATED LUFS</span>
+              <span id="h-hero-lufs" class="text-amber-600 font-extrabold block mt-0.5">-41.20 LUFS</span>
+            </div>
+            <div class="swiss-inner-slot p-2.5">
+              <span class="text-[10px] text-slate-400 font-bold block">TRUE PEAK MAX</span>
+              <span id="h-hero-tp" class="text-blue-600 font-extrabold block mt-0.5">-23.10 DBFS</span>
+            </div>
+            <div class="swiss-inner-slot p-2.5">
+              <span class="text-[10px] text-slate-400 font-bold block">PHASE CORRELATION</span>
+              <span id="h-hero-corr" class="text-slate-800 font-extrabold block mt-0.5">+0.7980</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- 右上角：最近检查记录抽屉 -->
+        <section class="lg:col-span-4 swiss-aluminum-panel p-4 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between border-b border-slate-200 pb-2 mb-2.5">
+              <span class="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                <svg class="w-4 h-4 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                RECENT INSPECTIONS // 最近历史
+              </span>
+              <span id="h-recent-count" class="text-[10px] font-mono-data font-bold text-slate-400">3 ITEMS</span>
+            </div>
+            <div id="h-recent-list" class="space-y-1.5 max-h-[110px] overflow-y-auto pr-1"></div>
+          </div>
+
+          <div class="pt-2 border-t border-slate-200 flex items-center justify-between text-[10px] text-slate-400 font-mono-data font-bold">
+            <span>BENCHMARKS:</span>
+            <div class="space-x-1.5">
+              <button onclick="loadTarget('firebird')" class="text-slate-600 hover:text-amber-600 underline">01.FLAC</button>
+              <span>/</span>
+              <button onclick="loadTarget('organ')" class="text-slate-600 hover:text-amber-600 underline">02.WAV</button>
+              <span>/</span>
+              <button onclick="loadTarget('dsd')" class="text-slate-600 hover:text-amber-600 underline">03.DSD</button>
+            </div>
+          </div>
+        </section>
+
+      </div>
+
+      <!-- 主区：左侧 5 列 Nagra 琥珀金色声像示波器 + 右侧 7 列精密物理数据矩阵 -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
+        
+        <!-- 左侧：Nagra 复古精密双环表头示波器 (5 列) -->
+        <div class="lg:col-span-5 swiss-aluminum-panel p-5 space-y-4 flex flex-col justify-between">
+          <div class="flex items-center justify-between border-b border-slate-200 pb-2.5">
+            <div>
+              <span class="text-[10px] tracking-[0.2em] uppercase text-amber-600 font-extrabold block">GONIOMETER & PHASE</span>
+              <h3 class="text-sm font-bold text-slate-900">立体声像与相位相关性</h3>
+            </div>
+            <span id="h-phase-badge" class="px-3 py-1 rounded-full text-xs font-mono-data bg-amber-50 text-amber-800 border border-amber-200 font-bold">
+              CORR: +0.7980
+            </span>
+          </div>
+
+          <!-- Nagra 暖色柔光表盘底座 -->
+          <div class="swiss-nagra-meter rounded-2xl p-4 flex flex-col items-center justify-center relative">
+            <canvas id="highendScope" width="240" height="240" class="w-[210px] h-[210px]"></canvas>
+            
+            <div class="w-full flex justify-between pt-3 text-xs font-mono-data text-amber-900 border-t border-amber-200/80 mt-2 font-bold">
+              <span>S/M 比: <b id="h-sm" class="text-slate-900">-9.43 dB</b></span>
+              <span>重心平衡: <b id="h-bal" class="text-slate-900">+0.72 dB (L)</b></span>
+            </div>
+          </div>
+
+          <!-- 三频分段声像定位卡片 -->
+          <div class="grid grid-cols-3 gap-2 text-center text-xs font-mono-data">
+            <div class="swiss-inner-slot p-2">
+              <span class="text-[10px] text-slate-400 font-bold block">LOW &lt;250HZ</span>
+              <span id="h-low" class="text-slate-800 font-bold text-[11px] block mt-1">+0.80 dB</span>
+            </div>
+            <div class="swiss-inner-slot p-2">
+              <span class="text-[10px] text-slate-400 font-bold block">MID 500-2K</span>
+              <span id="h-mid" class="text-slate-800 font-bold text-[11px] block mt-1">+0.16 dB</span>
+            </div>
+            <div class="swiss-inner-slot p-2">
+              <span class="text-[10px] text-slate-400 font-bold block">HIGH &gt;2.5K</span>
+              <span id="h-high" class="text-slate-800 font-bold text-[11px] block mt-1">+0.02 dB</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 右侧：动态架构 + 频宽阶梯 + 信号本底 (7 列) -->
+        <div class="lg:col-span-7 space-y-4">
+          
+          <!-- 动态架构板块 -->
+          <div class="swiss-aluminum-panel p-5 space-y-4">
+            <div class="flex items-center justify-between border-b border-slate-200 pb-2.5">
+              <div>
+                <span class="text-[10px] tracking-[0.2em] uppercase text-amber-600 font-extrabold block">DYNAMICS ARCHITECTURE</span>
+                <h3 class="text-sm font-bold text-slate-900">宏观响度与微观动态裕量</h3>
+              </div>
+              <span class="text-xs font-bold font-mono-data px-2.5 py-0.5 rounded bg-slate-100 text-slate-700 border border-slate-200">
+                EBU R128 / ITU-R BS.1770
+              </span>
+            </div>
+
+            <!-- 动态标尺刻度 -->
+            <div class="space-y-3 font-mono-data text-xs">
+              <div class="space-y-1">
+                <div class="flex justify-between font-bold">
+                  <span class="text-slate-600">INTEGRATED LOUDNESS // 综合响度</span>
+                  <span id="h-lufs" class="text-amber-700 text-sm">-41.20 LUFS</span>
+                </div>
+                <div class="h-3 w-full bg-slate-100 rounded-full overflow-hidden p-0.5 border border-slate-200">
+                  <div id="h-lufs-bar" class="h-full bg-gradient-to-r from-emerald-500 via-amber-500 to-amber-600 rounded-full transition-all duration-700" style="width: 28%"></div>
+                </div>
+              </div>
+
+              <div class="space-y-1">
+                <div class="flex justify-between font-bold">
+                  <span class="text-slate-600">TRUE PEAK MAX // 采样重构真峰值</span>
+                  <span id="h-tp" class="text-blue-700 text-sm">-23.10 DBFS</span>
+                </div>
+                <div class="h-3 w-full bg-slate-100 rounded-full overflow-hidden p-0.5 border border-slate-200">
+                  <div id="h-tp-bar" class="h-full bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full transition-all duration-700" style="width: 48%"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 4 个关键动态岛 -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-2.5 pt-1 font-mono-data text-xs">
+              <div class="swiss-inner-slot p-2.5">
+                <span class="text-[10px] text-slate-400 font-bold block">TT DR 评分</span>
+                <span id="h-dr" class="text-base font-extrabold text-slate-900 block mt-0.5">DR9</span>
+              </div>
+              <div class="swiss-inner-slot p-2.5">
+                <span class="text-[10px] text-slate-400 font-bold block">瞬态峰值因子</span>
+                <span id="h-crest" class="text-base font-extrabold text-amber-700 block mt-0.5">+17.65 dB</span>
+              </div>
+              <div class="swiss-inner-slot p-2.5">
+                <span class="text-[10px] text-slate-400 font-bold block">响度范围 (LRA)</span>
+                <span id="h-lra" class="text-base font-extrabold text-slate-900 block mt-0.5">11.10 LU</span>
+              </div>
+              <div class="swiss-inner-slot p-2.5">
+                <span class="text-[10px] text-slate-400 font-bold block">宏观极差 (SPAN)</span>
+                <span id="h-span" class="text-base font-extrabold text-slate-900 block mt-0.5">26.88 dB</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 频宽阶梯 + 电气规范 + 导出按键组合 -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            
+            <!-- 频宽与纯净度板块 -->
+            <div class="swiss-aluminum-panel p-4 space-y-3 font-mono-data text-xs">
+              <div class="flex items-center justify-between border-b border-slate-200 pb-2">
+                <span class="text-[11px] font-bold text-slate-800">FREQUENCY & RESOLUTION</span>
+                <span id="h-cutoff-badge" class="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 border border-emerald-300">
+                  NATIVE HI-RES
+                </span>
+              </div>
+              
+              <div class="flex justify-between items-center py-1 border-b border-slate-100">
+                <span class="text-slate-500">截止频率 (CUTOFF):</span>
+                <span id="h-cutoff" class="font-extrabold text-slate-900 text-sm">48.0 kHz</span>
+              </div>
+              <div class="space-y-1 text-[11px]">
+                <div class="flex justify-between text-slate-600">
+                  <span>10k-20k:</span>
+                  <span id="h-band10k" class="font-bold text-slate-900">-79.25 dBFS</span>
+                </div>
+                <div class="flex justify-between text-slate-600">
+                  <span>20k-24k:</span>
+                  <span id="h-band20k" class="font-bold text-slate-900">-93.71 dBFS</span>
+                </div>
+                <div class="flex justify-between text-slate-600">
+                  <span>24k-48k:</span>
+                  <span id="h-band24k" class="font-bold text-slate-900">-92.11 dBFS</span>
+                </div>
+              </div>
+              <div class="pt-2 border-t border-slate-200 space-y-1">
+                <div class="flex justify-between">
+                  <span class="text-slate-500">直流偏置:</span>
+                  <span id="h-dc" class="font-bold text-slate-900 truncate">L: 0.000 / R: 0.000</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-slate-500">有效位深:</span>
+                  <span id="h-bits" class="font-bold text-amber-700">20-BIT (PHYSICAL 24-BIT)</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- 精密导出岛 -->
+            <div class="swiss-aluminum-panel p-4 flex flex-col justify-between space-y-3">
+              <div>
+                <span class="text-[10px] tracking-[0.2em] uppercase text-amber-600 font-extrabold block">MASTERING AUDIT PROMPT</span>
+                <h4 class="text-xs font-bold text-slate-900 mt-0.5">母带工程质检提示词 (LLM)</h4>
+                <p id="txt-bridge-desc" class="text-[11px] text-slate-500 mt-1 leading-relaxed">
+                  基于 EBU R128 与 ITU-R BS.1770 客观测量指标，生成用于大模型评估音频制作质量的标准提示词。
+                </p>
+              </div>
+
+              <div class="space-y-2 pt-1 font-bold text-xs">
+                <button onclick="copyAuditPrompt()" class="w-full py-2.5 px-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-amber-400 transition shadow-md flex items-center justify-between">
+                  <span id="btn-highend-prompt">复制母带工程质检提示词</span>
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                </button>
+                <button onclick="copyRawConsoleMetrics()" class="w-full py-2.5 px-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-300 transition font-mono-data text-[11px] flex items-center justify-between">
+                  <span id="btn-highend-raw">导出客观测量原始数据</span>
+                  <span class="text-slate-500">RAW DUMP</span>
+                </button>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <script>
+    // ================= 全局状态与多语言字典 =================
+    let currentLang = 'zh';
+    let currentTheme = 'brutalist';
+    let recentHistory = [];
+
+    const I18N = {
+      zh: {
+        sysDesc: "音频客观物理指标分析 · EBU R128 / ITU-R BS.1770-4 规范",
+        btnOpenFile: "打开音频文件...",
+        btnPrompt: "复制母带工程质检提示词",
+        btnRaw: "导出客观测量原始数据",
+        recentTotal: "条记录",
+        bridgeDesc: "基于客观物理测量指标，生成用于大模型评估母带技术质量的专业质检提示词。"
+      },
+      en: {
+        sysDesc: "OBJECTIVE AUDIO MEASUREMENT · EBU R128 / ITU-R BS.1770-4",
+        btnOpenFile: "LOAD AUDIO FILE...",
+        btnPrompt: "[ COPY MASTERING AUDIT PROMPT ]",
+        btnRaw: "[ EXPORT RAW METRICS DUMP ]",
+        recentTotal: "ITEMS",
+        bridgeDesc: "Generates technical evaluation prompt for LLM based on EBU R128 and ITU-R BS.1770-4 standards."
+      }
+    };
+
+    // 内置音轨库
+    const B_DATA = {
+      firebird: {
+        title: "04 - The Firebird - Introduction.flac",
+        path: "D:\\Music\\04-The Firebird-Introduction.flac",
+        codec: "FLAC 2-CHANNEL · 96.0 KHZ / 24-BIT STEREO",
+        spec: "96.0 KHZ / 24-BIT",
+        dur: "02:47 // 41.18 MB",
+        status: "[READY // 就绪]",
+        lufs: "-41.20 LUFS",
+        lufsPct: 28,
+        tp: "-23.10 DBFS",
+        tpPct: 48,
+        dr: "DR9",
+        crest: "+17.65 dB",
+        lra: "11.10 LU",
+        span: "26.88 dB",
+        cutoff: "48.0 kHz",
+        cutoffTag: "NATIVE HI-RES",
+        band10k: "-79.25 dBFS",
+        band20k: "-93.71 dBFS",
+        band24k: "-92.11 dBFS",
+        dc: "L: 0.000000 / R: 0.000000",
+        bits: "20-BIT (PHYSICAL 24-BIT)",
+        corr: "+0.7980",
+        sm: "-9.43 dB",
+        bal: "+0.72 dB (L)",
+        low: "+0.80 dB | +0.8819",
+        mid: "+0.16 dB | +0.2998",
+        high: "+0.02 dB | +0.2634",
+        angle: Math.PI / 4 + 0.18,
+        spread: 0.35
+      },
+      organ: {
+        title: "02 - Organ - Chorale Prelude.wav",
+        path: "D:\\Music\\02-Organ-Chorale.wav",
+        codec: "PCM_S16LE · 44.1 KHZ / 16-BIT STEREO",
+        spec: "44.1 KHZ / 16-BIT",
+        dur: "06:01 // 60.76 MB",
+        status: "[READY // 就绪]",
+        lufs: "-17.90 LUFS",
+        lufsPct: 56,
+        tp: "-4.00 DBFS",
+        tpPct: 82,
+        dr: "DR9",
+        crest: "+15.47 dB",
+        lra: "5.10 LU",
+        span: "10.18 dB",
+        cutoff: "22.05 kHz",
+        cutoffTag: "REDBOOK 44.1KHZ",
+        band10k: "-54.50 dBFS",
+        band20k: "-120.00 dBFS",
+        band24k: "-120.00 dBFS",
+        dc: "L: +0.000103 / R: +0.000103",
+        bits: "15-BIT (PHYSICAL 16-BIT)",
+        corr: "+0.4377",
+        sm: "-4.07 dB",
+        bal: "-0.38 dB (R)",
+        low: "-0.78 dB | +0.5026",
+        mid: "+0.63 dB | +0.2235",
+        high: "-0.28 dB | -0.0482",
+        angle: Math.PI / 4,
+        spread: 0.75
+      },
+      dsd: {
+        title: "Stormy - Monday - Blues.dsf",
+        path: "D:\\Music\\Stormy-Monday.dsf",
+        codec: "DSD64 (1-BIT PDM) · 2.8224 MHZ",
+        spec: "DSD64 / 1-BIT",
+        dur: "09:02 // 364.87 MB",
+        status: "[READY // 就绪]",
+        lufs: "-17.00 LUFS",
+        lufsPct: 60,
+        tp: "-5.10 DBFS",
+        tpPct: 78,
+        dr: "DR9",
+        crest: "+17.34 dB",
+        lra: "7.20 LU",
+        span: "12.79 dB",
+        cutoff: "50.0 kHz",
+        cutoffTag: "SACD STD NOISE-SHAPING",
+        band10k: "-41.01 dBFS",
+        band20k: "-54.74 dBFS",
+        band24k: "-43.69 dBFS",
+        dc: "L: 0.000000 / R: 0.000000",
+        bits: "1-BIT (等效 >20-BIT 动态)",
+        corr: "+0.8819",
+        sm: "-12.02 dB",
+        bal: "-0.08 dB (CENTER)",
+        low: "+0.11 dB | +0.9437",
+        mid: "-0.38 dB | +0.8400",
+        high: "+0.66 dB | +0.8079",
+        angle: Math.PI / 4 - 0.05,
+        spread: 0.28
+      }
+    };
+
+    let bKey = 'firebird';
+
+    // 默认历史记录
+    recentHistory = [
+      { name: "04 - The Firebird - Introduction.flac", key: 'firebird', spec: "96k/24b", time: "10:02" },
+      { name: "02 - Organ - Chorale Prelude.wav", key: 'organ', spec: "44.1k/16b", time: "09:48" },
+      { name: "Stormy - Monday - Blues.dsf", key: 'dsd', spec: "DSD64", time: "09:15" }
+    ];
+
+    // ================= 语言切换 =================
+    function setLang(lang) {
+      currentLang = lang;
+      const dict = I18N[lang];
+
+      document.getElementById('txt-sys-desc').textContent = dict.sysDesc;
+      document.getElementById('btn-open-file-txt').textContent = dict.btnOpenFile;
+      document.getElementById('btn-highend-prompt').textContent = dict.btnPrompt;
+      document.getElementById('btn-highend-raw').textContent = dict.btnRaw;
+      document.getElementById('txt-bridge-desc').textContent = dict.bridgeDesc;
+
+      updateButtonStyles();
+      renderRecentList();
+    }
+
+    // ================= 主题切换 (彻底更换骨架与色彩) =================
+    function setTheme(theme) {
+      currentTheme = theme;
+      const htmlEl = document.documentElement;
+
+      if (theme === 'highend') {
+        htmlEl.classList.remove('theme-brutalist');
+        htmlEl.classList.add('theme-highend');
+      } else {
+        htmlEl.classList.remove('theme-highend');
+        htmlEl.classList.add('theme-brutalist');
+      }
+
+      updateButtonStyles();
+      const d = B_DATA[bKey] || B_DATA['firebird'];
+      drawScopes(d.angle, d.spread);
+    }
+
+    function updateButtonStyles() {
+      const isHighEnd = currentTheme === 'highend';
+      const btnBrutalist = document.getElementById('theme-btn-brutalist');
+      const btnHighEnd = document.getElementById('theme-btn-highend');
+      const btnFileLoad = document.getElementById('btn-file-load');
+      const boxTheme = document.getElementById('box-theme-switch');
+      const boxLang = document.getElementById('box-lang-switch');
+      const btnZh = document.getElementById('lang-btn-zh');
+      const btnEn = document.getElementById('lang-btn-en');
+      const toast = document.getElementById('b-toast');
+
+      if (isHighEnd) {
+        // High-End 瑞士浅色拉丝铝合金样式
+        boxTheme.className = "flex items-center p-0.5 border border-slate-300 bg-white rounded-full overflow-hidden shadow-sm";
+        boxLang.className = "flex items-center p-0.5 border border-slate-300 bg-white rounded-full overflow-hidden shadow-sm";
+        
+        btnHighEnd.className = "px-3 py-1 text-[11px] font-bold bg-slate-900 text-amber-400 rounded-full shadow-sm transition";
+        btnBrutalist.className = "px-3 py-1 text-[11px] font-bold text-slate-500 hover:text-slate-900 rounded-full transition";
+        
+        btnFileLoad.className = "px-4 py-1.5 font-bold flex items-center gap-2 transition duration-200 shadow-md rounded-full bg-slate-900 hover:bg-slate-800 text-amber-400";
+        toast.className = "fixed top-5 right-5 z-50 px-4 py-2 text-xs font-bold shadow-2xl opacity-0 transition-opacity duration-300 pointer-events-none rounded-xl bg-slate-900 text-amber-400 border border-slate-700";
+
+        if (currentLang === 'zh') {
+          btnZh.className = "px-2.5 py-1 text-[11px] font-bold bg-slate-900 text-white rounded-full transition";
+          btnEn.className = "px-2.5 py-1 text-[11px] font-bold text-slate-500 hover:text-slate-900 rounded-full transition";
+        } else {
+          btnZh.className = "px-2.5 py-1 text-[11px] font-bold text-slate-500 hover:text-slate-900 rounded-full transition";
+          btnEn.className = "px-2.5 py-1 text-[11px] font-bold bg-slate-900 text-white rounded-full transition";
+        }
+      } else {
+        // Brutalist 战术黑红样式
+        boxTheme.className = "flex items-center p-0.5 border border-zinc-700 bg-zinc-900 overflow-hidden";
+        boxLang.className = "flex items-center p-0.5 border border-zinc-700 bg-zinc-900 overflow-hidden";
+
+        btnBrutalist.className = "px-3 py-1 text-[11px] font-bold bg-[#e61919] text-black transition";
+        btnHighEnd.className = "px-3 py-1 text-[11px] font-bold text-zinc-400 hover:text-white transition";
+
+        btnFileLoad.className = "px-3.5 py-1.5 font-bold flex items-center gap-2 transition duration-200 shadow-lg bg-[#e61919] text-black hover:brightness-110";
+        toast.className = "fixed top-5 right-5 z-50 px-4 py-2 text-xs font-bold shadow-2xl opacity-0 transition-opacity duration-300 pointer-events-none bg-emerald-400 text-black";
+
+        if (currentLang === 'zh') {
+          btnZh.className = "px-2.5 py-1 text-[11px] font-bold bg-white text-black transition";
+          btnEn.className = "px-2.5 py-1 text-[11px] font-bold text-zinc-400 hover:text-white transition";
+        } else {
+          btnZh.className = "px-2.5 py-1 text-[11px] font-bold text-zinc-400 hover:text-white transition";
+          btnEn.className = "px-2.5 py-1 text-[11px] font-bold bg-white text-black transition";
+        }
+      }
+    }
+
+    // ================= 历史列表渲染 =================
+    function renderRecentList() {
+      // 1. Brutalist 列表
+      const bContainer = document.getElementById('b-recent-list');
+      if (bContainer) {
+        bContainer.innerHTML = '';
+        recentHistory.forEach((item, index) => {
+          const div = document.createElement('div');
+          div.className = "flex items-center justify-between text-[11px] bg-zinc-950/80 hover:bg-zinc-900 border border-zinc-800/60 p-1.5 cursor-pointer transition font-mono-data";
+          div.onclick = () => {
+            if (item.key && B_DATA[item.key]) loadTarget(item.key);
+            else if (item.data) window.__updateTelemetry(item.data);
+          };
+          div.innerHTML = `
+            <div class="truncate pr-2">
+              <span class="text-zinc-500 font-bold">${index + 1}.</span>
+              <span class="text-zinc-200 hover:underline">${item.name}</span>
+            </div>
+            <div class="flex items-center gap-2 shrink-0 text-[10px]">
+              <span class="text-emerald-400">${item.spec}</span>
+              <span class="text-zinc-500">${item.time}</span>
+            </div>
+          `;
+          bContainer.appendChild(div);
+        });
+      }
+
+      // 2. High-End 瑞士列表
+      const hContainer = document.getElementById('h-recent-list');
+      if (hContainer) {
+        hContainer.innerHTML = '';
+        recentHistory.forEach((item, index) => {
+          const div = document.createElement('div');
+          div.className = "flex items-center justify-between text-xs p-1.5 bg-slate-50 hover:bg-amber-50/70 border border-slate-200/80 cursor-pointer transition rounded-lg font-mono-data";
+          div.onclick = () => {
+            if (item.key && B_DATA[item.key]) loadTarget(item.key);
+            else if (item.data) window.__updateTelemetry(item.data);
+          };
+          div.innerHTML = `
+            <div class="truncate pr-2">
+              <span class="text-slate-400 font-bold">${index + 1}.</span>
+              <span class="text-slate-800 font-semibold hover:underline">${item.name}</span>
+            </div>
+            <div class="flex items-center gap-2 shrink-0 text-[10px]">
+              <span class="text-amber-700 font-bold">${item.spec}</span>
+              <span class="text-slate-400">${item.time}</span>
+            </div>
+          `;
+          hContainer.appendChild(div);
+        });
+      }
+
+      const dict = I18N[currentLang];
+      const countTxt = `${recentHistory.length} ${dict.recentTotal}`;
+      document.getElementById('b-recent-count').textContent = countTxt;
+      document.getElementById('h-recent-count').textContent = countTxt;
+    }
+
+    function addRecentRecord(name, spec, data) {
+      const now = new Date();
+      const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+      recentHistory.unshift({
+        name: name,
+        spec: spec,
+        time: timeStr,
+        data: data
+      });
+      if (recentHistory.length > 8) {
+        recentHistory.pop();
+      }
+      renderRecentList();
+    }
+
+    // ================= 数据同步至 DOM =================
+    function syncDataToDOM(d) {
+      // Brutalist 对应字段
+      document.getElementById('b-title').textContent = d.title;
+      document.getElementById('b-codec').textContent = d.codec;
+      document.getElementById('b-spec').textContent = d.spec;
+      document.getElementById('b-dur').textContent = d.dur;
+      document.getElementById('b-status').textContent = d.status;
+      document.getElementById('b-lufs').textContent = d.lufs;
+      document.getElementById('b-lufs-bar').style.width = d.lufsPct + '%';
+      document.getElementById('b-tp').textContent = d.tp;
+      document.getElementById('b-tp-bar').style.width = d.tpPct + '%';
+      document.getElementById('b-dr').textContent = d.dr;
+      document.getElementById('b-crest').textContent = d.crest;
+      document.getElementById('b-lra').textContent = d.lra;
+      document.getElementById('b-span').textContent = d.span;
+      document.getElementById('b-cutoff').textContent = d.cutoff;
+      document.getElementById('b-cutoff-tag').textContent = d.cutoffTag;
+      document.getElementById('b-band10k').textContent = d.band10k;
+      document.getElementById('b-band20k').textContent = d.band20k;
+      document.getElementById('b-band24k').textContent = d.band24k;
+      document.getElementById('b-dc').textContent = d.dc;
+      document.getElementById('b-bits').textContent = d.bits;
+      document.getElementById('b-corr').textContent = "CORR: " + d.corr;
+      document.getElementById('b-sm').textContent = d.sm;
+      document.getElementById('b-bal').textContent = d.bal;
+      document.getElementById('b-low').textContent = d.low;
+      document.getElementById('b-mid').textContent = d.mid;
+      document.getElementById('b-high').textContent = d.high;
+
+      // High-End 瑞士对应字段
+      document.getElementById('h-title').textContent = d.title;
+      document.getElementById('h-subtitle').textContent = d.codec;
+      document.getElementById('h-status').textContent = d.status;
+      document.getElementById('h-dur').textContent = d.dur;
+      document.getElementById('h-hero-lufs').textContent = d.lufs;
+      document.getElementById('h-hero-tp').textContent = d.tp;
+      document.getElementById('h-hero-corr').textContent = d.corr;
+      document.getElementById('h-lufs').textContent = d.lufs;
+      document.getElementById('h-lufs-bar').style.width = d.lufsPct + '%';
+      document.getElementById('h-tp').textContent = d.tp;
+      document.getElementById('h-tp-bar').style.width = d.tpPct + '%';
+      document.getElementById('h-dr').textContent = d.dr;
+      document.getElementById('h-crest').textContent = d.crest;
+      document.getElementById('h-lra').textContent = d.lra;
+      document.getElementById('h-span').textContent = d.span;
+      document.getElementById('h-cutoff').textContent = d.cutoff;
+      document.getElementById('h-cutoff-badge').textContent = d.cutoffTag;
+      document.getElementById('h-band10k').textContent = d.band10k;
+      document.getElementById('h-band20k').textContent = d.band20k;
+      document.getElementById('h-band24k').textContent = d.band24k;
+      document.getElementById('h-dc').textContent = d.dc;
+      document.getElementById('h-bits').textContent = d.bits;
+      document.getElementById('h-phase-badge').textContent = "CORR: " + d.corr;
+      document.getElementById('h-sm').textContent = d.sm;
+      document.getElementById('h-bal').textContent = d.bal;
+      document.getElementById('h-low').textContent = d.low;
+      document.getElementById('h-mid').textContent = d.mid;
+      document.getElementById('h-high').textContent = d.high;
+
+      drawScopes(d.angle, d.spread);
+    }
+
+    function loadTarget(k) {
+      bKey = k;
+      const d = B_DATA[k];
+      syncDataToDOM(d);
+    }
+
+    // ================= 双示波器绘制 =================
+    function drawScopes(rot, spread) {
+      // 1. Brutalist: 单色纯绿战术示波器
+      const cB = document.getElementById('brutalistScope');
+      if (cB) {
+        const ctx = cB.getContext('2d');
+        const w = cB.width, h = cB.height;
+        const cx = w / 2, cy = h / 2;
+        ctx.clearRect(0, 0, w, h);
+        ctx.strokeStyle = '#183818';
+        ctx.lineWidth = 1;
+        ctx.strokeRect(10, 10, w - 20, h - 20);
+        ctx.beginPath();
+        ctx.moveTo(cx, 10); ctx.lineTo(cx, h - 10);
+        ctx.moveTo(10, cy); ctx.lineTo(w - 10, cy);
+        ctx.moveTo(10, 10); ctx.lineTo(w - 10, h - 10);
+        ctx.moveTo(10, h - 10); ctx.lineTo(w - 10, 10);
+        ctx.stroke();
+
+        ctx.fillStyle = '#4af626';
+        const pts = 220;
+        for (let i = 0; i < pts; i++) {
+          const t = (i / pts) * Math.PI * 2;
+          const j = (Math.random() - 0.5) * 16;
+          const rx = (70 + j) * spread;
+          const ry = 75 + j;
+          const x = cx + (rx * Math.cos(t) * Math.cos(rot) - ry * Math.sin(t) * Math.sin(rot));
+          const y = cy + (rx * Math.cos(t) * Math.sin(rot) + ry * Math.sin(t) * Math.cos(rot));
+          ctx.fillRect(x, y, 1.5, 1.5);
+        }
+      }
+
+      // 2. High-End: 瑞士 Nagra 琥珀表头圆环与深青/琥珀双辉粒子
+      const cH = document.getElementById('highendScope');
+      if (cH) {
+        const ctx = cH.getContext('2d');
+        const w = cH.width, h = cH.height;
+        const cx = w / 2, cy = h / 2;
+        ctx.clearRect(0, 0, w, h);
+
+        // 象牙金暖刻度表圈
+        ctx.strokeStyle = 'rgba(217, 119, 6, 0.35)';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.arc(cx, cy, 98, 0, Math.PI * 2);
+        ctx.arc(cx, cy, 60, 0, Math.PI * 2);
+        ctx.stroke();
+
+        ctx.strokeStyle = 'rgba(180, 83, 9, 0.2)';
+        ctx.beginPath();
+        ctx.moveTo(cx, 15); ctx.lineTo(cx, h - 15);
+        ctx.moveTo(15, cy); ctx.lineTo(w - 15, cy);
+        ctx.moveTo(25, 25); ctx.lineTo(w - 25, h - 25);
+        ctx.moveTo(25, h - 25); ctx.lineTo(w - 25, 25);
+        ctx.stroke();
+
+        // 柔和靛青粒子 (在浅色金底上具有极佳明度对比)
+        ctx.fillStyle = '#0f766e';
+        const pts = 260;
+        for (let i = 0; i < pts; i++) {
+          const t = (i / pts) * Math.PI * 2;
+          const j = (Math.random() - 0.5) * 18;
+          const rx = (78 + j) * spread;
+          const ry = 82 + j;
+          const x = cx + (rx * Math.cos(t) * Math.cos(rot) - ry * Math.sin(t) * Math.sin(rot));
+          const y = cy + (rx * Math.cos(t) * Math.sin(rot) + ry * Math.sin(t) * Math.cos(rot));
+
+          ctx.beginPath();
+          ctx.arc(x, y, 1.4, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+    }
+
+    // ================= 原生 Rust 回调 =================
+    window.__updateTelemetry = function(data) {
+      const d = {
+        title: data.title,
+        path: data.path,
+        codec: data.codec + " · " + data.spec,
+        spec: data.spec,
+        dur: data.dur + " // " + data.size_mb.toFixed(2) + " MB",
+        status: data.status,
+        lufs: data.lufs,
+        lufsPct: data.lufs_pct,
+        tp: data.tp,
+        tpPct: data.tp_pct,
+        dr: data.dr,
+        crest: data.crest,
+        lra: data.lra,
+        span: data.span,
+        cutoff: data.cutoff,
+        cutoffTag: data.cutoff_tag,
+        band10k: data.band10k,
+        band20k: data.band20k,
+        band24k: data.band24k,
+        dc: data.dc,
+        bits: data.bits,
+        corr: data.corr,
+        sm: data.sm,
+        bal: data.bal,
+        low: data.low,
+        mid: data.mid,
+        high: data.high,
+        angle: data.angle,
+        spread: data.spread
+      };
+
+      B_DATA['active'] = d;
+      bKey = 'active';
+      syncDataToDOM(d);
+      addRecentRecord(data.title, data.spec, data);
+    };
+
+    window.__updateProgress = function(pct, desc) {
+      const elB = document.getElementById('b-status');
+      const elH = document.getElementById('h-status');
+      const txt = `[${Math.round(pct)}%] ${desc}`;
+      if (elB) elB.textContent = txt;
+      if (elH) elH.textContent = txt;
+    };
+
+    function triggerFilePicker() {
+      if (window.ipc && typeof window.ipc.postMessage === 'function') {
+        window.ipc.postMessage(JSON.stringify({ cmd: 'open_file_dialog' }));
+      }
+    }
+
+    // ================= 剪贴板复制逻辑 =================
+    function toastB(msg) {
+      const t = document.getElementById('b-toast');
+      if (msg) t.textContent = msg;
+      t.style.opacity = '1';
+      setTimeout(() => { t.style.opacity = '0'; }, 2200);
+    }
+
+    function copyTextReliably(text, successMsg) {
+      if (window.ipc && typeof window.ipc.postMessage === 'function') {
+        try {
+          window.ipc.postMessage(JSON.stringify({
+            cmd: 'copy',
+            text: text,
+            msg: successMsg
+          }));
+          return;
+        } catch(e) {
+          console.warn("IPC postMessage error:", e);
+        }
+      }
+
+      if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+        navigator.clipboard.writeText(text).then(() => {
+          toastB(successMsg);
+        }).catch(() => {
+          fallbackExecCopy(text, successMsg);
+        });
+      } else {
+        fallbackExecCopy(text, successMsg);
+      }
+    }
+
+    function fallbackExecCopy(text, successMsg) {
+      try {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        ta.style.position = 'fixed';
+        ta.style.left = '-9999px';
+        ta.style.top = '-9999px';
+        ta.setAttribute('readonly', '');
+        document.body.appendChild(ta);
+        ta.select();
+        const ok = document.execCommand('copy');
+        document.body.removeChild(ta);
+        if (ok) toastB(successMsg);
+        else toastB('[ ERR: CLIPBOARD DENIED ]');
+      } catch (err) {
+        toastB('[ ERR: COPY FAILED ]');
+      }
+    }
+
+    function copyAuditPrompt() {
+      const d = B_DATA[bKey] || B_DATA['firebird'];
+      const isZh = currentLang === 'zh';
+      const txt = isZh ? 
+`你是一名专业母带质检工程师。以下为基于 EBU R128、ITU-R BS.1770-4 及 TT Dynamic Range 规范测得的音频物理测量数据。
+请依据国际行业母带发布标准，对本曲进行客观技术质量评估。
+
+评估规范约束：
+1. 仅依据实测物理数据进行分析，严禁对录音现场的具体拾音制式或设备型号做无依据的猜测（仅从相关性、中侧比与相位分布评估立体声成像稳定性）。
+2. 坚持工程实证原则，指出是否存在削波失真风险、动态压缩过度、高频假升频截断或直流偏置等技术缺陷。
+
+【客观物理测量数据】
+- 曲目标题 / 格式: ${d.title} (${d.spec})
+- 播放时长: ${d.dur}
+- 综合响度 (Integrated Loudness): ${d.lufs}
+- 全曲最高真峰值 (True Peak): ${d.tp}
+- 瞬态峰值因子 (Crest Factor): ${d.crest}
+- TT DR 动态评分 (TT Dynamic Range): ${d.dr}
+- 宏观响度范围 (EBU R128 LRA): ${d.lra}
+- 宏观动态极差 (Macro Dynamic Span): ${d.span}
+- 全频双声道相关性 (Inter-channel Correlation): ${d.corr}
+- 中/侧能量比 (Side/Mid Ratio): ${d.sm}
+- 左右声道平衡重心 (L/R Balance): ${d.bal}
+- 三段分频声像分布:
+  * 低频 (<250Hz): ${d.low}
+  * 中频 (500Hz-2kHz): ${d.mid}
+  * 高频 (>2.5kHz): ${d.high}
+- 实测有效截止频率 (Cutoff Freq): ${d.cutoff}
+- 高频能量梯级 (10k-20k / 20k-24k / 24k-48k): ${d.band10k} / ${d.band20k} / ${d.band24k}
+- 直流偏置 (DC Offset): ${d.dc}
+- 有效比特深度 (Active Bit Depth): ${d.bits}
+
+请从宏观与微观动态分布、立体声相位与声场平衡、高频频宽真实性（是否存在假高保真/升频截断）、电气本底纯净度四个维度输出客观评估意见：` :
+`You are a professional audio mastering engineer. Below are empirical audio measurement metrics calculated in accordance with EBU R128, ITU-R BS.1770-4, and TT Dynamic Range standards.
+Please evaluate the mastering technical quality based on industry standards.
+
+EVALUATION CONSTRAINTS:
+1. Base conclusions strictly on measured metrics. Do not speculate on unverified microphone setups or recording gear (evaluate stereo stability solely from correlation, Side/Mid ratio, and frequency distribution).
+2. Point out specific engineering risks such as inter-sample clipping, excessive dynamic compression, artificial upsampling cutoffs, or DC offsets.
+
+[OBJECTIVE MEASUREMENT METRICS]
+- Track / Spec: ${d.title} (${d.spec})
+- Run Time: ${d.dur}
+- Integrated Loudness: ${d.lufs}
+- True Peak (Recon): ${d.tp}
+- Crest Factor: ${d.crest}
+- TT Dynamic Range: ${d.dr}
+- Loudness Range (LRA): ${d.lra}
+- Macro Dynamic Span: ${d.span}
+- Inter-channel Correlation: ${d.corr}
+- Side/Mid Ratio: ${d.sm}
+- Balance Center: ${d.bal}
+- Tri-band Distribution:
+  * Low (<250Hz): ${d.low}
+  * Mid (500Hz-2kHz): ${d.mid}
+  * High (>2.5kHz): ${d.high}
+- Effective Cutoff: ${d.cutoff}
+- High-Frequency Bands (10k-20k / 20k-24k / 24k-48k): ${d.band10k} / ${d.band20k} / ${d.band24k}
+- DC Offset: ${d.dc}
+- Active Bit Depth: ${d.bits}
+
+Please deliver an objective technical evaluation covering Dynamics, Stereo Imaging & Phase Stability, High-Frequency Bandwidth Authenticity, and Electrical Hygiene:`;
+
+      copyTextReliably(txt, isZh ? '[ 质检提示词已复制至剪贴板 ]' : '[ PROMPT COPIED TO CLIPBOARD ]');
+    }
+
+    function copyRawConsoleMetrics() {
+      const d = B_DATA[bKey] || B_DATA['firebird'];
+      const sep = "==========================================================================================";
+      const subsep = "------------------------------------------------------------------------------------------";
+      const txt = `${sep}
+                    RECORD INSPECT - AUDIO QUALITY METRICS                      
+${sep}
+曲目标题: ${d.title}
+格式规格: ${d.spec} | 时长: ${d.dur}
+${subsep}
+【1. 动态与响度指标 (Dynamics & Loudness)】
+  - 综合响度 (Integrated Loudness)    :  ${d.lufs}
+  - 宏观响度范围 (EBU R128 LRA)       :  ${d.lra}
+  - 全曲最高真峰值 (True Peak)        :  ${d.tp}
+  - 瞬态峰值因子 (Crest Factor)       :  ${d.crest}
+  - TT DR 动态评分 (TT Dynamic Range) :  ${d.dr}
+  - 宏观动态极差 (Macro Dynamic Span) :  ${d.span}
+
+【2. 空间声场与结像排布 (Spatial & Soundstage)】
+  - 全频双声道相关性 (Correlation)    :  ${d.corr}
+  - 中/侧能量比 (Side/Mid Ratio)      :  ${d.sm}
+  - 全频左右声道重心 (L/R Balance)    :  ${d.bal}
+  - 低频段 (<250Hz) 声像 / 相关度     :  ${d.low}
+  - 中频段 (500Hz-2kHz) 声像 / 相关度 :  ${d.mid}
+  - 高频段 (>2.5kHz) 声像 / 相关度    :  ${d.high}
+
+【3. 频响延展与高规格真伪 (Frequency & Resolution)】
+  - 标称采样率 / 标称位深             :  ${d.spec}
+  - 实测有效截止频率 (Cutoff Freq)    :  ${d.cutoff}
+  - 10kHz - 20kHz 频段能量            :  ${d.band10k}
+  - 20kHz - 24kHz 超声频段能量        :  ${d.band20k}
+  - 24kHz - 48kHz 极限频段能量        :  ${d.band24k}
+
+【4. 信号规范与本底纯净度 (Signal Hygiene)】
+  - 直流偏移 (DC Offset)              :  ${d.dc}
+  - 有效利用位深 (Active Bit Depth)   :  ${d.bits}
+${sep}`;
+      copyTextReliably(txt, currentLang === 'zh' ? '[ 控制台纯测量数据已复制 ]' : '[ RAW METRICS COPIED ]');
+    }
+
+    // 默认启动
+    updateButtonStyles();
+    renderRecentList();
+    loadTarget('firebird');
+  </script>
+</body>
+</html>

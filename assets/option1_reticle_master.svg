@@ -1,0 +1,128 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <!-- 背景渐变：深邃黑曜石与钛合金反光 -->
+    <linearGradient id="bgGrad1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#181c24"/>
+      <stop offset="50%" stop-color="#0c0e12"/>
+      <stop offset="100%" stop-color="#050608"/>
+    </linearGradient>
+
+    <!-- 黑胶唱片本体径向渐变 -->
+    <radialGradient id="vinylGrad1" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#141820"/>
+      <stop offset="40%" stop-color="#0d0f14"/>
+      <stop offset="85%" stop-color="#080a0d"/>
+      <stop offset="100%" stop-color="#161a22"/>
+    </radialGradient>
+
+    <!-- 唱片各向异性光影 (Vinyl Sheen) -->
+    <linearGradient id="sheenGrad1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.15"/>
+      <stop offset="30%" stop-color="#ffffff" stop-opacity="0.0"/>
+      <stop offset="70%" stop-color="#ffffff" stop-opacity="0.0"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0.15"/>
+    </linearGradient>
+
+    <!-- 中心利萨如声学光带渐变 -->
+    <linearGradient id="lissaGrad" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#10b981"/>
+      <stop offset="35%" stop-color="#fbbf24"/>
+      <stop offset="70%" stop-color="#f59e0b"/>
+      <stop offset="100%" stop-color="#ef4444"/>
+    </linearGradient>
+
+    <!-- 中心 CNC 金属圆盘渐变 -->
+    <radialGradient id="cncGrad" cx="40%" cy="40%" r="60%">
+      <stop offset="0%" stop-color="#475569"/>
+      <stop offset="60%" stop-color="#1e293b"/>
+      <stop offset="100%" stop-color="#0f172a"/>
+    </radialGradient>
+
+    <!-- 发光滤镜 -->
+    <filter id="glow1" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="6" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+  </defs>
+
+  <!-- 1. 外层平滑倒角容器 (Squircle Container) -->
+  <rect x="16" y="16" width="480" height="480" rx="104" ry="104" fill="url(#bgGrad1)"/>
+  <rect x="16" y="16" width="480" height="480" rx="104" ry="104" fill="none" stroke="#334155" stroke-width="2.5" stroke-opacity="0.8"/>
+  <rect x="20" y="20" width="472" height="472" rx="100" ry="100" fill="none" stroke="#ffffff" stroke-width="1" stroke-opacity="0.08"/>
+
+  <!-- 2. 四角工程定位标 (Precision Reticle Crop Marks) -->
+  <path d="M 48 80 L 48 48 L 80 48" fill="none" stroke="#64748b" stroke-width="2.5" stroke-linecap="round"/>
+  <path d="M 464 80 L 464 48 L 432 48" fill="none" stroke="#64748b" stroke-width="2.5" stroke-linecap="round"/>
+  <path d="M 48 432 L 48 464 L 80 464" fill="none" stroke="#64748b" stroke-width="2.5" stroke-linecap="round"/>
+  <path d="M 464 432 L 464 464 L 432 464" fill="none" stroke="#64748b" stroke-width="2.5" stroke-linecap="round"/>
+
+  <!-- 3. 黑胶唱片基底 (Vinyl Disc Body) -->
+  <circle cx="256" cy="256" r="216" fill="url(#vinylGrad1)" stroke="#1e293b" stroke-width="2"/>
+  <circle cx="256" cy="256" r="216" fill="url(#sheenGrad1)" style="mix-blend-mode: overlay;"/>
+
+  <!-- 4. 微观声槽物理同心圆 (Concentric Audio Grooves) -->
+  <circle cx="256" cy="256" r="85" fill="none" stroke="#ffffff" stroke-width="1" stroke-opacity="0.04"/>
+    <circle cx="256" cy="256" r="95" fill="none" stroke="#ffffff" stroke-width="1" stroke-opacity="0.04"/>
+    <circle cx="256" cy="256" r="105" fill="none" stroke="#ffffff" stroke-width="1" stroke-opacity="0.04"/>
+    <circle cx="256" cy="256" r="115" fill="none" stroke="#ffffff" stroke-width="1" stroke-opacity="0.04"/>
+    <circle cx="256" cy="256" r="125" fill="none" stroke="#ffffff" stroke-width="1" stroke-opacity="0.04"/>
+    <circle cx="256" cy="256" r="135" fill="none" stroke="#ffffff" stroke-width="1" stroke-opacity="0.04"/>
+    <circle cx="256" cy="256" r="145" fill="none" stroke="#ffffff" stroke-width="1" stroke-opacity="0.04"/>
+    <circle cx="256" cy="256" r="155" fill="none" stroke="#ffffff" stroke-width="1" stroke-opacity="0.04"/>
+    <circle cx="256" cy="256" r="165" fill="none" stroke="#ffffff" stroke-width="1" stroke-opacity="0.04"/>
+    <circle cx="256" cy="256" r="175" fill="none" stroke="#ffffff" stroke-width="1" stroke-opacity="0.04"/>
+    <circle cx="256" cy="256" r="185" fill="none" stroke="#ffffff" stroke-width="1" stroke-opacity="0.04"/>
+    <circle cx="256" cy="256" r="195" fill="none" stroke="#ffffff" stroke-width="1" stroke-opacity="0.04"/>
+
+  <!-- 5. 准星刻度盘环与刻度线 (Precision Reticle Scale) -->
+  <circle cx="256" cy="256" r="206" fill="none" stroke="#f59e0b" stroke-width="1" stroke-dasharray="4,8" stroke-opacity="0.4"/>
+  <circle cx="256" cy="256" r="82" fill="none" stroke="#64748b" stroke-width="1" stroke-opacity="0.5"/>
+  <line x1="461.00" y1="256.00" x2="471.00" y2="256.00" stroke="#f59e0b" stroke-width="2" stroke-opacity="0.8"/>
+    <line x1="454.01" y1="309.06" x2="456.91" y2="309.83" stroke="#64748b" stroke-width="1" stroke-opacity="0.4"/>
+    <line x1="433.54" y1="358.50" x2="437.87" y2="361.00" stroke="#64748b" stroke-width="1" stroke-opacity="0.4"/>
+    <line x1="400.96" y1="400.96" x2="408.03" y2="408.03" stroke="#f59e0b" stroke-width="2" stroke-opacity="0.8"/>
+    <line x1="358.50" y1="433.54" x2="361.00" y2="437.87" stroke="#64748b" stroke-width="1" stroke-opacity="0.4"/>
+    <line x1="309.06" y1="454.01" x2="309.83" y2="456.91" stroke="#64748b" stroke-width="1" stroke-opacity="0.4"/>
+    <line x1="256.00" y1="461.00" x2="256.00" y2="471.00" stroke="#f59e0b" stroke-width="2" stroke-opacity="0.8"/>
+    <line x1="202.94" y1="454.01" x2="202.17" y2="456.91" stroke="#64748b" stroke-width="1" stroke-opacity="0.4"/>
+    <line x1="153.50" y1="433.54" x2="151.00" y2="437.87" stroke="#64748b" stroke-width="1" stroke-opacity="0.4"/>
+    <line x1="111.04" y1="400.96" x2="103.97" y2="408.03" stroke="#f59e0b" stroke-width="2" stroke-opacity="0.8"/>
+    <line x1="78.46" y1="358.50" x2="74.13" y2="361.00" stroke="#64748b" stroke-width="1" stroke-opacity="0.4"/>
+    <line x1="57.99" y1="309.06" x2="55.09" y2="309.83" stroke="#64748b" stroke-width="1" stroke-opacity="0.4"/>
+    <line x1="51.00" y1="256.00" x2="41.00" y2="256.00" stroke="#f59e0b" stroke-width="2" stroke-opacity="0.8"/>
+    <line x1="57.99" y1="202.94" x2="55.09" y2="202.17" stroke="#64748b" stroke-width="1" stroke-opacity="0.4"/>
+    <line x1="78.46" y1="153.50" x2="74.13" y2="151.00" stroke="#64748b" stroke-width="1" stroke-opacity="0.4"/>
+    <line x1="111.04" y1="111.04" x2="103.97" y2="103.97" stroke="#f59e0b" stroke-width="2" stroke-opacity="0.8"/>
+    <line x1="153.50" y1="78.46" x2="151.00" y2="74.13" stroke="#64748b" stroke-width="1" stroke-opacity="0.4"/>
+    <line x1="202.94" y1="57.99" x2="202.17" y2="55.09" stroke="#64748b" stroke-width="1" stroke-opacity="0.4"/>
+    <line x1="256.00" y1="51.00" x2="256.00" y2="41.00" stroke="#f59e0b" stroke-width="2" stroke-opacity="0.8"/>
+    <line x1="309.06" y1="57.99" x2="309.83" y2="55.09" stroke="#64748b" stroke-width="1" stroke-opacity="0.4"/>
+    <line x1="358.50" y1="78.46" x2="361.00" y2="74.13" stroke="#64748b" stroke-width="1" stroke-opacity="0.4"/>
+    <line x1="400.96" y1="111.04" x2="408.03" y2="103.97" stroke="#f59e0b" stroke-width="2" stroke-opacity="0.8"/>
+    <line x1="433.54" y1="153.50" x2="437.87" y2="151.00" stroke="#64748b" stroke-width="1" stroke-opacity="0.4"/>
+    <line x1="454.01" y1="202.94" x2="456.91" y2="202.17" stroke="#64748b" stroke-width="1" stroke-opacity="0.4"/>
+
+  <!-- 6. 45度立体声 L/R 物理基准虚线与主十字线 -->
+  <line x1="100" y1="412" x2="412" y2="100" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="3,6" stroke-opacity="0.5"/>
+  <line x1="100" y1="100" x2="412" y2="412" stroke="#64748b" stroke-width="1.5" stroke-dasharray="3,6" stroke-opacity="0.3"/>
+  <line x1="256" y1="44" x2="256" y2="468" stroke="#38bdf8" stroke-width="1" stroke-opacity="0.25"/>
+  <line x1="44" y1="256" x2="468" y2="256" stroke="#38bdf8" stroke-width="1" stroke-opacity="0.25"/>
+
+  <!-- L / R 通道标识 -->
+  <text x="96" y="92" fill="#94a3b8" font-family="system-ui, sans-serif" font-size="14" font-weight="800" text-anchor="middle">L</text>
+  <text x="416" y="92" fill="#f59e0b" font-family="system-ui, sans-serif" font-size="14" font-weight="800" text-anchor="middle">R</text>
+
+  <!-- 7. 核心声学动态示波曲线 (Stereo Lissajous Loop) -->
+  <path d="M 273.07,273.07 L 280.90,273.50 L 288.49,273.70 L 295.78,273.65 L 302.72,273.32 L 309.28,272.67 L 315.40,271.70 L 321.05,270.37 L 326.19,268.67 L 330.80,266.60 L 334.86,264.15 L 338.34,261.32 L 341.24,258.12 L 343.55,254.55 L 345.26,250.63 L 346.38,246.38 L 346.92,241.83 L 346.90,237.00 L 346.33,231.92 L 345.25,226.64 L 343.67,221.20 L 341.64,215.63 L 339.18,209.99 L 336.35,204.32 L 333.17,198.67 L 329.71,193.10 L 325.99,187.66 L 322.08,182.40 L 318.02,177.37 L 313.86,172.63 L 309.64,168.22 L 305.41,164.19 L 301.23,160.58 L 297.13,157.45 L 293.15,154.81 L 289.33,152.72 L 285.70,151.20 L 282.31,150.28 L 279.17,149.97 L 276.30,150.29 L 273.73,151.26 L 271.47,152.86 L 269.53,155.11 L 267.91,158.00 L 266.61,161.51 L 265.62,165.62 L 264.94,170.31 L 264.55,175.55 L 264.43,181.31 L 264.57,187.54 L 264.92,194.21 L 265.47,201.26 L 266.18,208.65 L 267.01,216.33 L 267.93,224.23 L 268.90,232.29 L 269.87,240.47 L 270.82,248.70 L 271.70,256.91 L 272.46,265.06 L 273.07,273.07 L 273.50,280.90 L 273.70,288.49 L 273.65,295.78 L 273.32,302.72 L 272.67,309.28 L 271.70,315.40 L 270.37,321.05 L 268.67,326.19 L 266.60,330.80 L 264.15,334.86 L 261.32,338.34 L 258.12,341.24 L 254.55,343.55 L 250.63,345.26 L 246.38,346.38 L 241.83,346.92 L 237.00,346.90 L 231.92,346.33 L 226.64,345.25 L 221.20,343.67 L 215.63,341.64 L 209.99,339.18 L 204.32,336.35 L 198.67,333.17 L 193.10,329.71 L 187.66,325.99 L 182.40,322.08 L 177.37,318.02 L 172.63,313.86 L 168.22,309.64 L 164.19,305.41 L 160.58,301.23 L 157.45,297.13 L 154.81,293.15 L 152.72,289.33 L 151.20,285.70 L 150.28,282.31 L 149.97,279.17 L 150.29,276.30 L 151.26,273.73 L 152.86,271.47 L 155.11,269.53 L 158.00,267.91 L 161.51,266.61 L 165.62,265.62 L 170.31,264.94 L 175.55,264.55 L 181.31,264.43 L 187.54,264.57 L 194.21,264.92 L 201.26,265.47 L 208.65,266.18 L 216.33,267.01 L 224.23,267.93 L 232.29,268.90 L 240.47,269.87 L 248.70,270.82 L 256.91,271.70 L 265.06,272.46 L 273.07,273.07 Z" fill="none" stroke="url(#lissaGrad)" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" filter="url(#glow1)"/>
+  <path d="M 273.07,273.07 L 280.90,273.50 L 288.49,273.70 L 295.78,273.65 L 302.72,273.32 L 309.28,272.67 L 315.40,271.70 L 321.05,270.37 L 326.19,268.67 L 330.80,266.60 L 334.86,264.15 L 338.34,261.32 L 341.24,258.12 L 343.55,254.55 L 345.26,250.63 L 346.38,246.38 L 346.92,241.83 L 346.90,237.00 L 346.33,231.92 L 345.25,226.64 L 343.67,221.20 L 341.64,215.63 L 339.18,209.99 L 336.35,204.32 L 333.17,198.67 L 329.71,193.10 L 325.99,187.66 L 322.08,182.40 L 318.02,177.37 L 313.86,172.63 L 309.64,168.22 L 305.41,164.19 L 301.23,160.58 L 297.13,157.45 L 293.15,154.81 L 289.33,152.72 L 285.70,151.20 L 282.31,150.28 L 279.17,149.97 L 276.30,150.29 L 273.73,151.26 L 271.47,152.86 L 269.53,155.11 L 267.91,158.00 L 266.61,161.51 L 265.62,165.62 L 264.94,170.31 L 264.55,175.55 L 264.43,181.31 L 264.57,187.54 L 264.92,194.21 L 265.47,201.26 L 266.18,208.65 L 267.01,216.33 L 267.93,224.23 L 268.90,232.29 L 269.87,240.47 L 270.82,248.70 L 271.70,256.91 L 272.46,265.06 L 273.07,273.07 L 273.50,280.90 L 273.70,288.49 L 273.65,295.78 L 273.32,302.72 L 272.67,309.28 L 271.70,315.40 L 270.37,321.05 L 268.67,326.19 L 266.60,330.80 L 264.15,334.86 L 261.32,338.34 L 258.12,341.24 L 254.55,343.55 L 250.63,345.26 L 246.38,346.38 L 241.83,346.92 L 237.00,346.90 L 231.92,346.33 L 226.64,345.25 L 221.20,343.67 L 215.63,341.64 L 209.99,339.18 L 204.32,336.35 L 198.67,333.17 L 193.10,329.71 L 187.66,325.99 L 182.40,322.08 L 177.37,318.02 L 172.63,313.86 L 168.22,309.64 L 164.19,305.41 L 160.58,301.23 L 157.45,297.13 L 154.81,293.15 L 152.72,289.33 L 151.20,285.70 L 150.28,282.31 L 149.97,279.17 L 150.29,276.30 L 151.26,273.73 L 152.86,271.47 L 155.11,269.53 L 158.00,267.91 L 161.51,266.61 L 165.62,265.62 L 170.31,264.94 L 175.55,264.55 L 181.31,264.43 L 187.54,264.57 L 194.21,264.92 L 201.26,265.47 L 208.65,266.18 L 216.33,267.01 L 224.23,267.93 L 232.29,268.90 L 240.47,269.87 L 248.70,270.82 L 256.91,271.70 L 265.06,272.46 L 273.07,273.07 Z" fill="none" stroke="#ffffff" stroke-width="1.5" stroke-opacity="0.8"/>
+
+  <!-- 8. 中心 CNC 阳极氧化唱片轴心套环与红宝石激光测点 -->
+  <circle cx="256" cy="256" r="36" fill="url(#cncGrad)" stroke="#64748b" stroke-width="2"/>
+  <circle cx="256" cy="256" r="28" fill="none" stroke="#94a3b8" stroke-width="1" stroke-dasharray="2,3" stroke-opacity="0.6"/>
+  <circle cx="256" cy="256" r="14" fill="#090d16" stroke="#475569" stroke-width="1.5"/>
+  <circle cx="256" cy="256" r="5" fill="#10b981" filter="url(#glow1)"/>
+  <circle cx="256" cy="256" r="2" fill="#ffffff"/>
+
+  <!-- 9. 底部极客技术标印 -->
+  <text x="256" y="478" fill="#64748b" font-family="monospace" font-size="11" font-weight="700" letter-spacing="4" text-anchor="middle">RECORD INSPECT // R128</text>
+</svg>

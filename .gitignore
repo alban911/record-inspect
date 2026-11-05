@@ -1,0 +1,35 @@
+# Rust build artifacts
+target/
+**/*.rs.bk
+
+# Compiled executables & libraries
+*.exe
+*.dll
+*.so
+*.dylib
+*.o
+*.a
+
+# Local Windows WebView2 runtime cache & metrics
+*.WebView2/
+*.pma
+
+# Python cache & build outputs
+__pycache__/
+*.py[cod]
+*$py.class
+dist/
+build/
+*.spec
+.pytest_cache/
+
+# IDE & Editor settings
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS generated files
+Thumbs.db
+[Dd]esktop.ini
+.DS_Store

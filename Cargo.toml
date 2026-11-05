@@ -1,0 +1,36 @@
+[package]
+name = "record-inspect"
+version = "0.1.0"
+edition = "2021"
+authors = ["alban911"]
+license = "MIT"
+description = "High-precision acoustic metrology, mastering quality inspection & AI blind-testing tool"
+repository = "https://github.com/alban911/record-inspect"
+readme = "README.md"
+keywords = ["audio", "mastering", "ebu-r128", "dynamic-range", "acoustic-analysis"]
+categories = ["multimedia::audio", "command-line-utilities", "gui"]
+
+[dependencies]
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+wry = "0.57"
+tao = "0.37"
+
+[[bin]]
+name = "record-inspect-cli"
+path = "src/main.rs"
+
+[[bin]]
+name = "record-inspect-gui"
+path = "src/gui_main.rs"
+
+[lib]
+name = "record_inspect_lib"
+path = "src/engine.rs"
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+panic = "abort"
+strip = true

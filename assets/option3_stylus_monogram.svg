@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bgGrad3" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#111827"/>
+      <stop offset="100%" stop-color="#030712"/>
+    </linearGradient>
+
+    <!-- 醒目战术高对比橙金 -->
+    <linearGradient id="markGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f59e0b"/>
+      <stop offset="50%" stop-color="#fbbf24"/>
+      <stop offset="100%" stop-color="#d97706"/>
+    </linearGradient>
+
+    <filter id="glow3" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="7" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+  </defs>
+
+  <!-- 倒角底座 -->
+  <rect x="16" y="16" width="480" height="480" rx="104" ry="104" fill="url(#bgGrad3)"/>
+  <rect x="16" y="16" width="480" height="480" rx="104" ry="104" fill="none" stroke="#374151" stroke-width="2.5"/>
+
+  <!-- 外围极简四段圆弧 (象征唱片边缘与质检视界) -->
+  <circle cx="256" cy="256" r="200" fill="none" stroke="#1f2937" stroke-width="6"/>
+  <circle cx="256" cy="256" r="200" fill="none" stroke="#f59e0b" stroke-width="6" stroke-dasharray="140 180" stroke-linecap="round"/>
+  <circle cx="256" cy="256" r="200" fill="none" stroke="#10b981" stroke-width="6" stroke-dasharray="90 230" stroke-dashoffset="-240" stroke-linecap="round"/>
+
+  <!-- 几何抽象：大写 R / 唱针悬臂 与 脉冲声波的强力交错徽标 -->
+  <!-- 左侧垂直声学主轴 (Main Acoustic Column) -->
+  <rect x="120" y="110" width="42" height="292" rx="12" fill="#f3f4f6"/>
+
+  <!-- 顶部精密唱臂悬梁向右延伸，形成 R 字顶环 / 示波波峰 -->
+  <path d="M 162 110 L 300 110 C 365 110 405 150 405 210 C 405 270 365 305 300 305 L 162 305 Z" 
+        fill="none" stroke="url(#markGrad)" stroke-width="42" stroke-linejoin="round" stroke-linecap="round" filter="url(#glow3)"/>
+  <path d="M 162 110 L 300 110 C 365 110 405 150 405 210 C 405 270 365 305 300 305 L 162 305 Z" 
+        fill="none" stroke="#ffffff" stroke-width="38" stroke-linejoin="round" stroke-linecap="round"/>
+
+  <!-- R 字右斜下探针：斜向 45 度精密探针针尖 (Diamond Stylus Tip) -->
+  <path d="M 270 290 L 375 402" stroke="url(#markGrad)" stroke-width="42" stroke-linecap="round"/>
+  <!-- 探针尖端红宝石高光点 -->
+  <circle cx="375" cy="402" r="12" fill="#ef4444" filter="url(#glow3)"/>
+  <circle cx="375" cy="402" r="6" fill="#ffffff"/>
+
+  <!-- 唱针尖端激发的微观音频脉冲波 (Micro Acoustic Waves) -->
+  <path d="M 405 372 C 420 385 425 405 415 425" fill="none" stroke="#38bdf8" stroke-width="5" stroke-linecap="round" opacity="0.8"/>
+  <path d="M 425 352 C 448 375 455 415 438 448" fill="none" stroke="#38bdf8" stroke-width="4" stroke-linecap="round" opacity="0.5"/>
+
+  <!-- 内部音轨同心圆点标 -->
+  <circle cx="260" cy="208" r="28" fill="#111827" stroke="#4b5563" stroke-width="8"/>
+  <circle cx="260" cy="208" r="8" fill="#f59e0b"/>
+</svg>
