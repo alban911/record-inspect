@@ -5,9 +5,9 @@
 [![Rust](https://img.shields.io/badge/Rust-2021_Edition-orange.svg)](Cargo.toml)
 [![Platform](https://img.shields.io/badge/Platform-Windows_x64-lightgrey.svg)]()
 
-> **高精度母带声学测量、品质检视与 AI 盲测评估套件**
+> **离线音频声学测量、品质检视与 AI 盲测评估套件**
 >
-> 专为音频工程师、发烧友与母带质检设计的本地原生工具链：纯 Rust 声学计算内核 + 双风格工业仪表 GUI + 自动化批量 CLI + AI 智能体盲测评测 Skill。
+> 面向音频发烧友与数字录音质检的本地分析工具：Rust 调度 + FFmpeg 高精度声学解调，辅以双风格轻量 GUI、批量 CLI 与 AI 盲测评测规范。
 
 [English](README.md) | [简体中文](README_zh.md)
 

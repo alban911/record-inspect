@@ -5,9 +5,9 @@
 [![Rust](https://img.shields.io/badge/Rust-2021_Edition-orange.svg)](Cargo.toml)
 [![Platform](https://img.shields.io/badge/Platform-Windows_x64-lightgrey.svg)]()
 
-> **High-Precision Acoustic Metrology, Mastering Quality Inspection & AI Blind-Testing Protocol.**
+> **Offline Audio Acoustic Measurement, Quality Inspection & AI Blind-Testing Suite.**
 >
-> A native toolchain engineered for audio engineers, audiophiles, and mastering quality control: zero-dependency Rust DSP engine + dual-theme industrial GUI + batch CLI + AI Agent blind-testing skill.
+> A local analysis tool for audiophiles and digital recording inspection: Rust orchestration + FFmpeg high-precision acoustic decoding, paired with a dual-theme lightweight GUI, batch CLI, and AI blind-testing protocol.
 
 [English](README.md) | [简体中文](README_zh.md)
 
