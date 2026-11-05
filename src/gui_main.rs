@@ -31,6 +31,7 @@ extern "system" {
     fn GlobalAlloc(uFlags: u32, dwBytes: usize) -> *mut std::ffi::c_void;
     fn GlobalLock(hMem: *mut std::ffi::c_void) -> *mut std::ffi::c_void;
     fn GlobalUnlock(hMem: *mut std::ffi::c_void) -> i32;
+    fn GlobalFree(hMem: *mut std::ffi::c_void) -> *mut std::ffi::c_void;
 }
 
 fn set_native_clipboard(text: &str) -> bool {
@@ -43,16 +44,23 @@ fn set_native_clipboard(text: &str) -> bool {
         let utf16: Vec<u16> = text.encode_utf16().chain(std::iter::once(0)).collect();
         let size = utf16.len() * 2;
         let h_mem = GlobalAlloc(0x0002 /* GMEM_MOVEABLE */, size);
+        let mut success = false;
         if !h_mem.is_null() {
             let ptr = GlobalLock(h_mem) as *mut u16;
             if !ptr.is_null() {
                 std::ptr::copy_nonoverlapping(utf16.as_ptr(), ptr, utf16.len());
                 GlobalUnlock(h_mem);
-                SetClipboardData(13 /* CF_UNICODETEXT */, h_mem);
+                if !SetClipboardData(13 /* CF_UNICODETEXT */, h_mem).is_null() {
+                    success = true;
+                } else {
+                    GlobalFree(h_mem);
+                }
+            } else {
+                GlobalFree(h_mem);
             }
         }
         CloseClipboard();
-        true
+        success
     }
     #[cfg(not(windows))]
     false
@@ -180,7 +188,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 }
                 Some("analyze_path") => {
                     if let Some(path) = val["path"].as_str() {
-                        trigger_analysis(path.to_string(), Arc::clone(&ipc_busy), ipc_proxy.clone());
+                        let pb = PathBuf::from(path);
+                        if pb.is_file() {
+                            trigger_analysis(path.to_string(), Arc::clone(&ipc_busy), ipc_proxy.clone());
+                        }
                     }
                 }
                 _ => {}

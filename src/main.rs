@@ -121,7 +121,7 @@ fn bytes_to_f32_vec(bytes: &[u8]) -> Vec<f32> {
 fn run_band_spatial(file_path: &str, filter: &str) -> (f64, f64, f64) {
     let output = Command::new("ffmpeg")
         .args([
-            "-v", "quiet", "-i", file_path, "-af", filter, "-f", "f32le", "-ac", "2", "-ar", "44100", "-",
+            "-v", "quiet", "-t", "1800", "-i", file_path, "-af", filter, "-f", "f32le", "-ac", "2", "-ar", "44100", "-",
         ])
         .output();
 
@@ -163,7 +163,7 @@ fn run_band_spatial(file_path: &str, filter: &str) -> (f64, f64, f64) {
 
 fn run_hires_band(file_path: &str, filter: &str) -> f64 {
     let output = Command::new("ffmpeg")
-        .args(["-v", "quiet", "-i", file_path, "-af", filter, "-f", "f32le", "-ac", "2", "-"])
+        .args(["-v", "quiet", "-t", "1800", "-i", file_path, "-af", filter, "-f", "f32le", "-ac", "2", "-"])
         .output();
 
     let bytes = match output {
@@ -183,8 +183,8 @@ fn run_hires_band(file_path: &str, filter: &str) -> f64 {
 
 fn analyze_track(file_path: &str) {
     let p = Path::new(file_path);
-    if !p.exists() {
-        println!("错误: 找不到指定文件: {}", file_path);
+    if !p.exists() || !p.is_file() {
+        println!("错误: 找不到指定音频文件: {}", file_path);
         return;
     }
 
@@ -195,7 +195,7 @@ fn analyze_track(file_path: &str) {
     // 1. ffprobe metadata
     let probe_output = Command::new("ffprobe")
         .args([
-            "-v", "quiet", "-print_format", "json", "-show_format", "-show_streams", file_path,
+            "-v", "quiet", "-print_format", "json", "-show_format", "-show_streams", "--", file_path,
         ])
         .output();
 
@@ -378,11 +378,11 @@ fn analyze_track(file_path: &str) {
         0.0
     };
 
-    // 4. Decode 44100Hz float PCM for Spatial & TT DR
+    // 4. Decode 44100Hz float PCM for Spatial & TT DR (capped at 30 mins to prevent OOM)
     progress.set_stage(65.0, "正在解调双声道声场与相关度矩阵...");
     let pcm_output = Command::new("ffmpeg")
         .args([
-            "-v", "quiet", "-i", file_path, "-f", "f32le", "-ac", "2", "-ar", "44100", "-",
+            "-v", "quiet", "-t", "1800", "-i", file_path, "-f", "f32le", "-ac", "2", "-ar", "44100", "-",
         ])
         .output();
 
@@ -510,8 +510,7 @@ fn analyze_track(file_path: &str) {
     // 6. Hi-Res Frequency Extension
     progress.set_stage(92.0, "正在扫描超声频段与真假 Hi-Res 断崖...");
     let rms_10k_20k = run_hires_band(file_path, "bandpass=f=15000:width_type=h:w=10000");
-    let mut is_natural = true;
-    let mut cutoff_desc = String::new();
+    let cutoff_desc: String;
     let mut rms_20k_24k = -120.0;
     let mut rms_24k_48k = -120.0;
 
@@ -519,16 +518,13 @@ fn analyze_track(file_path: &str) {
         rms_20k_24k = run_hires_band(file_path, "bandpass=f=22000:width_type=h:w=4000");
         rms_24k_48k = run_hires_band(file_path, "bandpass=f=36000:width_type=h:w=24000");
         cutoff_desc = "50.0 kHz (DSD模拟频宽上限)".to_string();
-        is_natural = true;
     } else if sample_rate >= 88200 {
         rms_20k_24k = run_hires_band(file_path, "bandpass=f=22000:width_type=h:w=4000");
         rms_24k_48k = run_hires_band(file_path, "bandpass=f=36000:width_type=h:w=24000");
         if rms_20k_24k > -110.0 && (rms_10k_20k - rms_20k_24k < 38.0) {
             cutoff_desc = format!("{}.0 kHz", sample_rate / 2000);
-            is_natural = true;
         } else {
             cutoff_desc = "约 22.05 kHz (存在截断断崖)".to_string();
-            is_natural = false;
         }
     } else if sample_rate >= 48000 {
         rms_20k_24k = run_hires_band(file_path, "bandpass=f=22000:width_type=h:w=4000");

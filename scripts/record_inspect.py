@@ -66,8 +66,8 @@ class ProgressTracker:
         sys.stdout.flush()
 
 def analyze_track(file_path):
-    if not os.path.exists(file_path):
-        print(f"错误: 找不到指定文件: {file_path}")
+    if not os.path.exists(file_path) or not os.path.isfile(file_path):
+        print(f"错误: 找不到指定音频文件: {file_path}")
         return
 
     ffmpeg = get_ffmpeg_path()
@@ -79,7 +79,7 @@ def analyze_track(file_path):
 
     # 1. Probe metadata
     try:
-        probe_cmd = [ffprobe, "-v", "quiet", "-print_format", "json", "-show_format", "-show_streams", file_path]
+        probe_cmd = [ffprobe, "-v", "quiet", "-print_format", "json", "-show_format", "-show_streams", "--", file_path]
         probe_raw = subprocess.check_output(probe_cmd, encoding="utf-8", errors="ignore")
         probe_data = json.loads(probe_raw)
     except Exception as e:
@@ -178,7 +178,7 @@ def analyze_track(file_path):
 
     # 4. Decode 44100Hz float PCM for Spatial & TT DR (Stage 4: 55% -> 70%)
     progress.set_stage(65, "正在解调双声道声场与相关度矩阵...")
-    cmd_pcm = [ffmpeg, "-v", "quiet", "-i", file_path, "-f", "f32le", "-ac", "2", "-ar", "44100", "-"]
+    cmd_pcm = [ffmpeg, "-v", "quiet", "-t", "1800", "-i", file_path, "-f", "f32le", "-ac", "2", "-ar", "44100", "-"]
     raw_pcm = subprocess.check_output(cmd_pcm)
     s = array.array("f")
     s.frombytes(raw_pcm)
@@ -207,7 +207,7 @@ def analyze_track(file_path):
     # Band-split spatial & TT DR (Stage 5: 70% -> 85%)
     progress.set_stage(78, "正在计算分频段声部定位与 TT DR...")
     def get_band_spatial(b_filter):
-        cmd = [ffmpeg, "-v", "quiet", "-i", file_path, "-af", b_filter, "-f", "f32le", "-ac", "2", "-ar", "44100", "-"]
+        cmd = [ffmpeg, "-v", "quiet", "-t", "1800", "-i", file_path, "-af", b_filter, "-f", "f32le", "-ac", "2", "-ar", "44100", "-"]
         r = subprocess.check_output(cmd)
         sb = array.array("f")
         sb.frombytes(r)

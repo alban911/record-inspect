@@ -3,8 +3,7 @@ import subprocess
 from pathlib import Path
 from PIL import Image
 
-ASSETS_DIR = Path(r"E:\用户\alban911\Downloads\Software\record-inspect\rust-src\assets")
-ARTIFACTS_DIR = Path(r"C:\Users\alban\.gemini\antigravity\brain\b35a3f74-e30f-47fa-aa66-de1a10b8ba72")
+ASSETS_DIR = Path(__file__).resolve().parent
 EDGE_PATH = r"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe"
 
 # =========================================================================
@@ -333,19 +332,16 @@ def main():
         "option3_stylus_monogram": get_svg_option3(),
     }
 
-    # 1. 保存 SVG 到 assets 和 artifacts
+    # 1. 保存 SVG 到 assets
     for name, content in svgs.items():
         svg_file = ASSETS_DIR / f"{name}.svg"
         svg_file.write_text(content, encoding="utf-8")
-        art_svg = ARTIFACTS_DIR / f"{name}.svg"
-        art_svg.write_text(content, encoding="utf-8")
         print(f"Saved {svg_file.name}")
 
     # 2. 渲染为 512x512 PNG
     for name in svgs.keys():
         svg_path = (ASSETS_DIR / f"{name}.svg").resolve()
         png_path = (ASSETS_DIR / f"{name}.png").resolve()
-        art_png = (ARTIFACTS_DIR / f"{name}.png").resolve()
         
         # 使用 Edge headless 截图渲染高质量 PNG
         cmd = [
@@ -358,8 +354,6 @@ def main():
             f"file:///{str(svg_path).replace(chr(92), '/')}"
         ]
         subprocess.run(cmd, check=True)
-        # 复制到 artifacts 目录
-        art_png.write_bytes(png_path.read_bytes())
         print(f"Rendered PNG: {png_path.name}")
 
     # 3. 将方案 1 生成包含全套 Windows 尺寸的 record_inspect.ico

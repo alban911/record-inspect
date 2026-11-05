@@ -33,7 +33,7 @@ fn bytes_to_f32_vec(bytes: &[u8]) -> Vec<f32> {
 fn run_band_spatial(file_path: &str, filter: &str) -> (f64, f64, f64) {
     let output = create_cmd("ffmpeg")
         .args([
-            "-v", "quiet", "-i", file_path, "-af", filter, "-f", "f32le", "-ac", "2", "-ar", "44100", "-",
+            "-v", "quiet", "-t", "1800", "-i", file_path, "-af", filter, "-f", "f32le", "-ac", "2", "-ar", "44100", "-",
         ])
         .output();
 
@@ -75,7 +75,7 @@ fn run_band_spatial(file_path: &str, filter: &str) -> (f64, f64, f64) {
 
 fn run_hires_band(file_path: &str, filter: &str) -> f64 {
     let output = create_cmd("ffmpeg")
-        .args(["-v", "quiet", "-i", file_path, "-af", filter, "-f", "f32le", "-ac", "2", "-"])
+        .args(["-v", "quiet", "-t", "1800", "-i", file_path, "-af", filter, "-f", "f32le", "-ac", "2", "-"])
         .output();
 
     let bytes = match output {
@@ -138,8 +138,8 @@ where
     F: FnMut(f64, &str),
 {
     let p = Path::new(file_path);
-    if !p.exists() {
-        return Err(format!("找不到文件: {}", file_path));
+    if !p.exists() || !p.is_file() {
+        return Err(format!("找不到有效音频文件: {}", file_path));
     }
 
     let file_title = p.file_name().and_then(|n| n.to_str()).unwrap_or("AUDIO TRACK").to_string();
@@ -148,7 +148,7 @@ where
 
     let probe_output = create_cmd("ffprobe")
         .args([
-            "-v", "quiet", "-print_format", "json", "-show_format", "-show_streams", file_path,
+            "-v", "quiet", "-print_format", "json", "-show_format", "-show_streams", "--", file_path,
         ])
         .output()
         .map_err(|e| format!("ffprobe 执行失败: {}", e))?;
@@ -323,11 +323,11 @@ where
         0.0
     };
 
-    // 4. Decode 44100Hz float PCM for Spatial & TT DR
+    // 4. Decode 44100Hz float PCM for Spatial & TT DR (capped at 30 mins to prevent OOM)
     progress_cb(68.0, "DECODING SPATIAL CORRELATION & MICRO-DYNAMICS...");
     let pcm_output = create_cmd("ffmpeg")
         .args([
-            "-v", "quiet", "-i", file_path, "-f", "f32le", "-ac", "2", "-ar", "44100", "-",
+            "-v", "quiet", "-t", "1800", "-i", file_path, "-f", "f32le", "-ac", "2", "-ar", "44100", "-",
         ])
         .output();
 
@@ -454,8 +454,8 @@ where
     // 6. Hi-Res Frequency Extension
     progress_cb(92.0, "SCANNING ULTRASONIC STEP & CUTOFF CLIFF...");
     let rms_10k_20k = run_hires_band(file_path, "bandpass=f=15000:width_type=h:w=10000");
-    let mut cutoff_desc = String::new();
-    let mut cutoff_tag = "VALID";
+    let cutoff_desc: String;
+    let cutoff_tag: &str;
     let mut rms_20k_24k = -120.0;
     let mut rms_24k_48k = -120.0;
 

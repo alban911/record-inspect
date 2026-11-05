@@ -866,16 +866,31 @@
             if (item.key && B_DATA[item.key]) loadTarget(item.key);
             else if (item.data) window.__updateTelemetry(item.data);
           };
-          div.innerHTML = `
-            <div class="truncate pr-2">
-              <span class="text-zinc-500 font-bold">${index + 1}.</span>
-              <span class="text-zinc-200 hover:underline">${item.name}</span>
-            </div>
-            <div class="flex items-center gap-2 shrink-0 text-[10px]">
-              <span class="text-emerald-400">${item.spec}</span>
-              <span class="text-zinc-500">${item.time}</span>
-            </div>
-          `;
+
+          const leftDiv = document.createElement('div');
+          leftDiv.className = "truncate pr-2";
+          const idxSpan = document.createElement('span');
+          idxSpan.className = "text-zinc-500 font-bold";
+          idxSpan.textContent = `${index + 1}. `;
+          const nameSpan = document.createElement('span');
+          nameSpan.className = "text-zinc-200 hover:underline";
+          nameSpan.textContent = item.name;
+          leftDiv.appendChild(idxSpan);
+          leftDiv.appendChild(nameSpan);
+
+          const rightDiv = document.createElement('div');
+          rightDiv.className = "flex items-center gap-2 shrink-0 text-[10px]";
+          const specSpan = document.createElement('span');
+          specSpan.className = "text-emerald-400";
+          specSpan.textContent = item.spec;
+          const timeSpan = document.createElement('span');
+          timeSpan.className = "text-zinc-500";
+          timeSpan.textContent = item.time;
+          rightDiv.appendChild(specSpan);
+          rightDiv.appendChild(timeSpan);
+
+          div.appendChild(leftDiv);
+          div.appendChild(rightDiv);
           bContainer.appendChild(div);
         });
       }
@@ -891,16 +906,31 @@
             if (item.key && B_DATA[item.key]) loadTarget(item.key);
             else if (item.data) window.__updateTelemetry(item.data);
           };
-          div.innerHTML = `
-            <div class="truncate pr-2">
-              <span class="text-slate-400 font-bold">${index + 1}.</span>
-              <span class="text-slate-800 font-semibold hover:underline">${item.name}</span>
-            </div>
-            <div class="flex items-center gap-2 shrink-0 text-[10px]">
-              <span class="text-amber-700 font-bold">${item.spec}</span>
-              <span class="text-slate-400">${item.time}</span>
-            </div>
-          `;
+
+          const leftDiv = document.createElement('div');
+          leftDiv.className = "truncate pr-2";
+          const idxSpan = document.createElement('span');
+          idxSpan.className = "text-slate-400 font-bold";
+          idxSpan.textContent = `${index + 1}. `;
+          const nameSpan = document.createElement('span');
+          nameSpan.className = "text-slate-800 font-semibold hover:underline";
+          nameSpan.textContent = item.name;
+          leftDiv.appendChild(idxSpan);
+          leftDiv.appendChild(nameSpan);
+
+          const rightDiv = document.createElement('div');
+          rightDiv.className = "flex items-center gap-2 shrink-0 text-[10px]";
+          const specSpan = document.createElement('span');
+          specSpan.className = "text-amber-700 font-bold";
+          specSpan.textContent = item.spec;
+          const timeSpan = document.createElement('span');
+          timeSpan.className = "text-slate-400";
+          timeSpan.textContent = item.time;
+          rightDiv.appendChild(specSpan);
+          rightDiv.appendChild(timeSpan);
+
+          div.appendChild(leftDiv);
+          div.appendChild(rightDiv);
           hContainer.appendChild(div);
         });
       }

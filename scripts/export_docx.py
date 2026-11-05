@@ -190,9 +190,7 @@ advice_box = (
 )
 add_callout(advice_box, '母带工程修正建议')
 
-out_path1 = r'E:\用户\alban911\Documents\Obsidian Vault\Alban-s-Private-Vault\音响\Audio-QC\1200_音频客观物理质检报告.docx'
-out_path2 = r'E:\用户\alban911\Videos\1200_音频客观物理质检报告.docx'
-
-doc.save(out_path1)
-doc.save(out_path2)
-print("UPDATED DOCX SUCCESS")
+import sys
+out_path = sys.argv[1] if len(sys.argv) > 1 else "audio_qc_report.docx"
+doc.save(out_path)
+print(f"SAVED DOCX TO: {out_path}")
