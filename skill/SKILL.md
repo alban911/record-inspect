@@ -30,11 +30,11 @@ description: 严格盲测音频声学物理质检与客观母带评价 Skill。�
 当触发该 Skill 时，必须遵循以下步骤执行：
 
 ### 1. 运行底层提取引擎
-在终端或后台执行内嵌脚本：
+在终端或后台执行提取脚本（自动定位于当前技能或项目目录下的 `scripts/batch_analyzer.py`）：
 ```powershell
-python "scripts/batch_analyzer.py" "<目标音频文件或专辑目录绝对路径>"
+python "<SKILL_OR_REPO_DIR>/scripts/batch_analyzer.py" "<目标音频文件或专辑目录绝对路径>"
 ```
-*注：该脚本会自动优先调用内嵌的 `bin/record-inspect.exe` 原生 CLI 二进制提取数据（纳秒级且无需重型依赖），若出现异常则自动无缝回退至 `scripts/record_inspect.py`。*
+*注：该脚本会自动按顺序探测项目根目录、`target/release/`、`bin/` 或系统 `PATH` 中的 `record-inspect-cli.exe` 原生二进制提取数据；若未找到二进制文件，则自动无缝回退至同目录的 `scripts/record_inspect.py`，无需手动配置路径。*
 
 ### 2. 获取结构化指标 JSON
 脚本将返回标准 JSON 结构，包含：
@@ -79,10 +79,10 @@ python "scripts/batch_analyzer.py" "<目标音频文件或专辑目录绝对路�
 
 ---
 
-## 四、Obsidian 笔记归档与双链规范
+## 四、质检报告归档与 Obsidian 双链规范
 
-所有质检报告可自动保存至用户的专属笔记目录（请根据本地环境配置）：
-📂 **归档目录**：`<PATH_TO_OBSIDIAN_VAULT>/Audio-QC/`
+质检报告支持开箱即用的零配置归档：
+📂 **默认归档目录**：优先保存至被测音频所在目录下的 `Audio-QC/` 子目录（或当前工作区的 `Audio-QC/` 目录）；若用户在对话或规则中指定了自定义 Obsidian 笔记库路径，则自动归档至用户指定目录。
 
 ### 1. 单轨报告命名与格式
 - 命名规则：`<曲目标题>.md`（若有特殊字符转为安全下划线）

@@ -9,6 +9,7 @@ import sys
 import os
 import re
 import json
+import shutil
 import subprocess
 from pathlib import Path
 
@@ -16,20 +17,39 @@ SUPPORTED_EXTS = {".flac", ".wav", ".dsf", ".dff", ".aiff", ".aif", ".m4a", ".mp
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 SKILL_DIR = SCRIPT_DIR.parent
-BIN_EXE = SKILL_DIR / "bin" / "record-inspect.exe"
 PY_SCRIPT = SCRIPT_DIR / "record_inspect.py"
 
+def find_cli_binary() -> Path | None:
+    """Auto-discover the native Rust CLI binary across common locations and PATH."""
+    candidates = [
+        SKILL_DIR / "record-inspect-cli.exe",
+        SKILL_DIR / "record-inspect.exe",
+        SKILL_DIR / "bin" / "record-inspect-cli.exe",
+        SKILL_DIR / "bin" / "record-inspect.exe",
+        SKILL_DIR / "target" / "release" / "record-inspect-cli.exe",
+        SCRIPT_DIR / "record-inspect-cli.exe",
+    ]
+    for c in candidates:
+        if c.is_file():
+            return c
+    for cmd in ("record-inspect-cli", "record-inspect"):
+        which_path = shutil.which(cmd)
+        if which_path:
+            return Path(which_path)
+    return None
+
 def run_inspector(audio_file: str) -> dict:
-    """Run record-inspect.exe (preferred) or record_inspect.py to extract metrics."""
+    """Run native Rust CLI binary (preferred) or record_inspect.py to extract metrics."""
     audio_path = Path(audio_file).resolve()
     if not audio_path.exists():
         return {"error": f"File not found: {audio_file}"}
 
     raw_output = ""
-    # 1. Try Rust CLI binary
-    if BIN_EXE.exists():
+    # 1. Try auto-discovered Rust CLI binary
+    bin_exe = find_cli_binary()
+    if bin_exe:
         try:
-            p = subprocess.run([str(BIN_EXE), str(audio_path)], capture_output=True, text=True, encoding="utf-8", errors="replace")
+            p = subprocess.run([str(bin_exe), str(audio_path)], capture_output=True, text=True, encoding="utf-8", errors="replace")
             if p.returncode == 0:
                 raw_output = p.stdout
         except Exception:
