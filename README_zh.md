@@ -13,6 +13,16 @@
 
 ---
 
+## 最近更新 (What's New in v0.1.1)
+
+- **流式分块管道计算 (Streaming DSP)**：核心解调引擎由全量载入内存重构为定长分块流式读取（16KB 采样块 + 3 秒滑动窗口），彻底废除 `-t 1800` 30 分钟硬截断，数小时超长音频常驻内存恒定稳定在 100 KB 以内。
+- **界面 100% 离线自包含**：移除外部 `tailwindcss.min.js` 与 Google Fonts 网络依赖，将用到的 207 个 Tailwind 工具类全部预编译内联至 `<style>`，引入现代等宽及系统无衬线字体优雅回退栈，断网状态秒开。
+- **CLI 与 GUI 统一归一**：`src/main.rs` 精简 70% 代码，完全收敛至 `record_inspect_lib::analyze_track_data`，消除双重实现的代码漂移风险。
+- **有损编码物理位深修正**：修正 MP3/AAC 因 FFmpeg 浮点解调导致被误标为 24-bit PCM 及 31-bit 有效位深的缺陷，改为提取实际码率（如 `320 kbps (有损压缩)`）并明确标为有损感知量化。
+- **MinGW 中文路径构建加固**：`build.rs` 优化图标资源编译输出至纯 ASCII 的 `OUT_DIR`，根治 Windows 下 GNU `ld.exe` 对非 ASCII 路径解析崩溃的问题。
+
+---
+
 ## 核心特性
 
 - **Rust 高性能声学分析与交互框架 (`src/engine.rs`)**

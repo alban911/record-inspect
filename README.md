@@ -13,6 +13,16 @@
 
 ---
 
+## What's New in v0.1.1
+
+- **Streaming DSP Pipeline**: Replaced full in-memory PCM buffering with a 16 KB chunked streaming pipe via `ChildStdout`, eliminating the 30-minute limit and allowing multi-hour files to run with ~100 KB constant resident RAM.
+- **100% Offline Standalone GUI**: Inlined 207 pre-compiled Tailwind utility classes directly into `src/ui.html`, removing all external CDN scripts and Google Fonts requests.
+- **Unified Engine Core**: Refactored `src/main.rs` to consume `record_inspect_lib` directly, shrinking CLI codebase by 70% and eliminating code drift.
+- **Lossy Audio Bitrate & Depth Fix**: Corrected an issue where MP3/AAC files were misidentified as 24-bit PCM / 31-bit active depth due to FFmpeg's `fltp` decoder output; now extracts actual stream bitrates (e.g. `320 kbps`).
+- **Windows MinGW Build Hardening**: Fixed GNU `ld.exe` icon object lookup failures on paths containing non-ASCII / Chinese characters.
+
+---
+
 ## Core Features
 
 - **High-Performance Rust Metrology Architecture (`src/engine.rs`)**
