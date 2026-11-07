@@ -232,6 +232,10 @@ pub struct AnalysisResult {
     #[serde(default)]
     pub is_dsd: bool,
     #[serde(default)]
+    pub is_lossy: bool,
+    #[serde(default)]
+    pub bit_rate_kbps: u32,
+    #[serde(default)]
     pub dc_offset_l: f64,
     #[serde(default)]
     pub dc_offset_r: f64,
@@ -258,6 +262,18 @@ impl AnalysisResult {
                 "格式规格: {} | 1-bit Stereo | 大小: {:.2} MB | 时长: {}",
                 self.codec, self.size_mb, self.dur
             );
+        } else if self.is_lossy {
+            if self.bit_rate_kbps > 0 {
+                println!(
+                    "格式规格: {} | {} Hz | {} kbps (有损压缩) | 大小: {:.2} MB | 时长: {}",
+                    self.codec, self.sample_rate, self.bit_rate_kbps, self.size_mb, self.dur
+                );
+            } else {
+                println!(
+                    "格式规格: {} | {} Hz | 有损感知编码 | 大小: {:.2} MB | 时长: {}",
+                    self.codec, self.sample_rate, self.size_mb, self.dur
+                );
+            }
         } else {
             println!(
                 "格式规格: {} | {} Hz | {}-bit Stereo | 大小: {:.2} MB | 时长: {}",
@@ -311,6 +327,18 @@ impl AnalysisResult {
         println!("【3. 频响延展与高规格真伪 (Frequency & Resolution)】");
         if self.is_dsd {
             println!("  - 标称采样率 / 标称位深             :  {} / 1-bit", self.codec);
+        } else if self.is_lossy {
+            if self.bit_rate_kbps > 0 {
+                println!(
+                    "  - 标称采样率 / 压缩码率             :  {} Hz / {} kbps (有损感知编码, 无固定PCM位深)",
+                    self.sample_rate, self.bit_rate_kbps
+                );
+            } else {
+                println!(
+                    "  - 标称采样率 / 编码机制             :  {} Hz / 有损感知编码 (无固定PCM位深)",
+                    self.sample_rate
+                );
+            }
         } else {
             println!(
                 "  - 标称采样率 / 标称位深             :  {} Hz / {}-bit",
@@ -341,6 +369,8 @@ impl AnalysisResult {
         );
         if self.is_dsd {
             println!("  - 有效利用位深 (Active Bit Depth)   :  1-bit (音频带内等效 20~24-bit)");
+        } else if self.is_lossy {
+            println!("  - 有效利用位深 (Active Bit Depth)   :  有损动态量化 (IMDCT 浮点解调, 源自 <=16-bit 心理声学掩蔽)");
         } else {
             println!(
                 "  - 有效利用位深 (Active Bit Depth)   :  {}-bit",
@@ -404,31 +434,51 @@ where
             .or_else(|| s[key].as_str().and_then(|v| v.parse().ok()))
     };
 
-    let bits_val: u32 = audio_stream
-        .and_then(|s| parse_bits(s, "bits_per_raw_sample").or_else(|| parse_bits(s, "bits_per_sample")))
-        .filter(|&v| v > 0)
-        .or_else(|| {
-            let sfmt = audio_stream.and_then(|s| s["sample_fmt"].as_str()).unwrap_or("");
-            let cname = audio_stream.and_then(|s| s["codec_name"].as_str()).unwrap_or("");
-            if sfmt.starts_with("s16") || sfmt.starts_with("u16") || cname.contains("16") {
-                Some(16)
-            } else if sfmt.starts_with("s24") || sfmt.starts_with("u24") || cname.contains("24") {
-                Some(24)
-            } else if sfmt.starts_with("s32") || sfmt.starts_with("flt") || cname.contains("32") {
-                Some(24)
-            } else {
-                None
-            }
-        })
-        .unwrap_or(16);
+    let format_str = fmt["format_name"].as_str().unwrap_or("").to_lowercase();
+    let is_dsd = codec_name.contains("DSD") || format_str.contains("dsf") || format_str.contains("dff");
+    let is_lossy = codec_name.contains("MP3")
+        || codec_name.contains("AAC")
+        || codec_name.contains("VORBIS")
+        || codec_name.contains("OPUS")
+        || codec_name.contains("WMA")
+        || codec_name.contains("AC3")
+        || codec_name.contains("EAC3")
+        || codec_name.contains("MP2")
+        || format_str.contains("mp3")
+        || format_str.contains("ogg");
+
+    let bit_rate_kbps: u32 = audio_stream
+        .and_then(|s| s["bit_rate"].as_str().and_then(|v| v.parse().ok()))
+        .or_else(|| fmt["bit_rate"].as_str().and_then(|v| v.parse().ok()))
+        .map(|bps: u32| (bps + 500) / 1000)
+        .unwrap_or(0);
+
+    let bits_val: u32 = if is_lossy {
+        16
+    } else {
+        audio_stream
+            .and_then(|s| parse_bits(s, "bits_per_raw_sample").or_else(|| parse_bits(s, "bits_per_sample")))
+            .filter(|&v| v > 0)
+            .or_else(|| {
+                let sfmt = audio_stream.and_then(|s| s["sample_fmt"].as_str()).unwrap_or("");
+                let cname = audio_stream.and_then(|s| s["codec_name"].as_str()).unwrap_or("");
+                if sfmt.starts_with("s16") || sfmt.starts_with("u16") || cname.contains("16") {
+                    Some(16)
+                } else if sfmt.starts_with("s24") || sfmt.starts_with("u24") || cname.contains("24") {
+                    Some(24)
+                } else if sfmt.starts_with("s32") || sfmt.starts_with("flt") || cname.contains("32") {
+                    Some(24)
+                } else {
+                    None
+                }
+            })
+            .unwrap_or(16)
+    };
 
     let file_size_mb = match p.metadata() {
         Ok(m) => m.len() as f64 / (1024.0 * 1024.0),
         Err(_) => 0.0,
     };
-
-    let format_str = fmt["format_name"].as_str().unwrap_or("").to_lowercase();
-    let is_dsd = codec_name.contains("DSD") || format_str.contains("dsf") || format_str.contains("dff");
 
     let (dsd_name, spec_desc) = if is_dsd {
         let bit_clock = sample_rate * 8;
@@ -436,6 +486,22 @@ where
         let mhz = bit_clock as f64 / 1_000_000.0;
         let name = format!("DSD{}", mult);
         let spec = format!("DSD{} ({:.4} MHZ) // 1-BIT", mult, mhz);
+        (name, spec)
+    } else if is_lossy {
+        let name = codec_name.clone();
+        let spec = if bit_rate_kbps > 0 {
+            if sample_rate >= 1000 {
+                format!("{:.1} KHZ // {} KBPS (LOSSY)", sample_rate as f64 / 1000.0, bit_rate_kbps)
+            } else {
+                format!("{} HZ // {} KBPS (LOSSY)", sample_rate, bit_rate_kbps)
+            }
+        } else {
+            if sample_rate >= 1000 {
+                format!("{:.1} KHZ // LOSSY VBR", sample_rate as f64 / 1000.0)
+            } else {
+                format!("{} HZ // LOSSY VBR", sample_rate)
+            }
+        };
         (name, spec)
     } else {
         let spec = if sample_rate >= 1000 {
@@ -764,6 +830,12 @@ where
 
     let active_bits_str = if is_dsd {
         "1-BIT (DSD PDM STREAM)".to_string()
+    } else if is_lossy {
+        if bit_rate_kbps > 0 {
+            format!("LOSSY ({} KBPS // PERCEPTUAL)", bit_rate_kbps)
+        } else {
+            "LOSSY (PERCEPTUAL)".to_string()
+        }
     } else {
         format!("{}-BIT (PHYSICAL)", bit_depth_active)
     };
@@ -835,6 +907,8 @@ where
         sample_rate,
         bits_val,
         is_dsd,
+        is_lossy,
+        bit_rate_kbps,
         dc_offset_l,
         dc_offset_r,
         bit_depth_active,

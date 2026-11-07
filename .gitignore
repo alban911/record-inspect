@@ -9,6 +9,7 @@ target/
 *.dylib
 *.o
 *.a
+*.old
 
 # Local Windows WebView2 runtime cache & metrics
 *.WebView2/
