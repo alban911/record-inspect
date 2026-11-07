@@ -16,9 +16,9 @@
 ## 核心特性
 
 - **Rust 高性能声学分析与交互框架 (`src/engine.rs`)**
-  - 基于 Rust 调度与内存零拷贝计算，无重量级 Python 解释器环境依赖。
+  - 基于 Rust 流式管道分块计算（Streaming DSP），固定数 KB ~ 数 MB 缓冲常驻内存，彻底消除数小时超长音频 OOM 隐患。
   - 依赖系统级 **FFmpeg** 进行底层格式解调（支持 FLAC、WAV、APE、ALAC、MP3 及 DSD `.dsf`/`.dff`）。
-  - 严格遵循工业级声学标准与 ITU-R / EBU 算法规范。
+  - 严格遵循工业级声学标准与 ITU-R / EBU 算法规范，CLI 与 GUI 统一复用单一计算内核。
 - **全维度物理指标测量**
   - **动态与响度**：EBU R128 综合响度 (`LUFS`)、宏观响度范围 (`LRA`)、4倍过采样真峰值 (`True Peak dBTP`)、瞬态峰值因子 (`Crest Factor`)、经典 `TT Dynamic Range (DR)`。
   - **声场与相位**：全频立体声相位相关系数 (`-1.0 ~ +1.0`)、侧边/中间信号能量比 (`Side/Mid Energy Ratio dB`)。
@@ -26,6 +26,7 @@
   - **位深与直流偏置**：实际有效位深统计 (`Active Bit Depth`)、直流偏移 (`DC Offset`)。
 - **双模工业级原生 GUI (`record-inspect-gui`)**
   - 基于 Tao + Wry (WebView2) 的轻量原生视窗，亚像素级响应。
+  - **100% 离线自包含**：样式工具类全量内联编译，消除外部 CDN 与 Google Fonts 网络依赖，断网秒开。
   - **瑞士精密阳极氧化铝 (Swiss Anodized Aluminum)**：高对比度、清晰严谨的精密仪器风格。
   - **野兽派工业机架 (Brutalist Studio Rack)**：复古母带硬件棚风格，带真实物理质感的按键与指示灯。
   - 支持拖拽音频文件即刻测量与多标签数据呈现。

@@ -16,9 +16,9 @@
 ## Core Features
 
 - **High-Performance Rust Metrology Architecture (`src/engine.rs`)**
-  - Ultra-fast zero-copy DSP analysis pipeline with zero Python runtime overhead.
+  - Streaming DSP pipe architecture with fixed chunk buffering, keeping memory footprint constant at a few MBs even on multi-hour audio files.
   - Leverages system-level **FFmpeg** for universal audio decoding (FLAC, WAV, APE, ALAC, MP3, and native DSD `.dsf`/`.dff`).
-  - Strictly adheres to industrial standards (ITU-R BS.1770-4, EBU R128).
+  - Strictly adheres to industrial standards (ITU-R BS.1770-4, EBU R128), unifying CLI and GUI on a single core.
 - **Comprehensive Acoustic Metrology**
   - **Dynamics & Loudness**: EBU R128 Integrated Loudness (`LUFS`), Loudness Range (`LRA`), 4x Oversampled True Peak (`dBTP`), Crest Factor (`dB`), and classic `TT Dynamic Range (DR)`.
   - **Stereo Field & Phase**: Full-band Phase Correlation Coefficient (`-1.0 ~ +1.0`), Side/Mid Energy Ratio (`dB`).
@@ -26,6 +26,7 @@
   - **Bit Depth & DC Drift**: Active Bit Depth histogram analysis and DC Offset detection.
 - **Dual-Persona Native GUI (`record-inspect-gui`)**
   - Lightweight native desktop client powered by Tao + Wry (WebView2).
+  - **100% Offline Self-Contained**: Utility styles fully pre-compiled and inlined, removing external CDN and font network dependencies.
   - **Swiss Anodized Aluminum**: Minimalist, clean, high-contrast precision instrument aesthetic.
   - **Brutalist Studio Rack**: Industrial physical rack unit styling with tactile toggles and LED indicators.
   - Drag-and-drop instant measurement with multi-file tabular inspection.
